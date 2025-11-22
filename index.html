@@ -5,430 +5,184 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SLIYANIE | Magazine Issue</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
-    <!-- Подключаем "дорогие" шрифты: Cormorant Garamond (похож на шрифт Vogue) и Raleway -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Raleway:wght@300;400;500&display=swap" rel="stylesheet">
 
     <style>
+        /* --- CSS Стили (Те же, плюс Preloader) --- */
         :root {
             --bg-color: #ffffff;
             --text-main: #111111;
             --text-muted: #666666;
-            --accent: #000000;
             --font-serif: 'Cormorant Garamond', serif;
             --font-sans: 'Raleway', sans-serif;
         }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-color); color: var(--text-main); font-family: var(--font-sans); overflow-x: hidden; padding-bottom: 100px; min-height: 100vh; }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
+        /* Preloader */
+        #preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #fff; z-index: 9999;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            transition: opacity 0.5s ease;
         }
+        .loader-logo { font-family: var(--font-serif); font-size: 24px; letter-spacing: 2px; margin-bottom: 20px; animation: pulse 2s infinite; }
+        .spinner { width: 30px; height: 30px; border: 2px solid #f3f3f3; border-top: 2px solid #000; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: var(--font-sans);
-            overflow-x: hidden;
-            padding-bottom: 100px; /* Место под кнопку заказа */
-        }
-
-        /* --- ОБЛОЖКА (HERO SECTION) --- */
-        .magazine-cover {
-            position: relative;
-            width: 100%;
-            height: 70vh; /* 70% высоты экрана */
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-
-        .cover-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: -1;
-            opacity: 0.9;
-            /* Фильтр для черно-белого эффекта, уберите если нужны цветные */
-            filter: grayscale(100%); 
-        }
-
-        /* Затемнение фона для читаемости лого */
-        .cover-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(255,255,255, 0.1); /* Легкая белая вуаль */
-        }
-
-        .brand-logo-large {
-            width: 180px; /* Размер лого на обложке */
-            margin-bottom: 10px;
-            z-index: 2;
-            animation: fadeDown 1.2s ease-out;
-        }
-
-        .issue-date {
-            font-family: var(--font-serif);
-            font-style: italic;
-            font-size: 16px;
-            letter-spacing: 1px;
-            z-index: 2;
-            margin-top: 10px;
-            animation: fadeUp 1.2s ease-out;
-        }
-
-        /* --- БЕГУЩАЯ СТРОКА --- */
-        .marquee-container {
-            background: #000;
-            color: #fff;
-            padding: 10px 0;
-            overflow: hidden;
-            white-space: nowrap;
-            font-family: var(--font-sans);
-            font-size: 10px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        .marquee-content {
-            display: inline-block;
-            animation: marquee 15s linear infinite;
-        }
-
-        @keyframes marquee {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-
-        /* --- НАВИГАЦИЯ (Tabs) --- */
-        .nav-tabs {
-            position: sticky;
-            top: 0;
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(5px);
-            z-index: 100;
-            display: flex;
-            justify-content: space-around;
-            padding: 15px 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .nav-item {
-            font-family: var(--font-serif);
-            font-size: 18px;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: 0.3s;
-            position: relative;
-        }
-
-        .nav-item.active {
-            color: var(--text-main);
-            font-style: italic;
-            font-weight: 600;
-        }
+        /* Hero & Layout */
+        .magazine-cover { position: relative; width: 100%; height: 65vh; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .cover-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; filter: grayscale(100%); opacity: 0.9; }
+        .brand-logo-large { width: 160px; margin-bottom: 10px; z-index: 2; animation: fadeDown 1s ease-out; }
+        .issue-date { font-family: var(--font-serif); font-style: italic; font-size: 16px; letter-spacing: 1px; z-index: 2; color: #fff; mix-blend-mode: difference; }
         
-        /* Подчеркивание активной вкладки */
-        .nav-item.active::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 100%;
-            height: 1px;
-            background: #000;
-        }
+        /* Marquee */
+        .marquee-container { background: #000; color: #fff; padding: 8px 0; overflow: hidden; white-space: nowrap; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; }
+        .marquee-content { display: inline-block; animation: marquee 20s linear infinite; }
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
-        /* --- ТОВАРЫ (EDITORIAL GRID) --- */
-        .editorial-grid {
-            display: grid;
-            grid-template-columns: 1fr; /* Одна колонка для "статейного" вида */
-            gap: 40px;
-            padding: 30px 20px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
+        /* Tabs */
+        .nav-tabs { position: sticky; top: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(5px); z-index: 100; display: flex; justify-content: center; gap: 20px; padding: 15px 0; border-bottom: 1px solid #f0f0f0; }
+        .nav-item { font-family: var(--font-serif); font-size: 18px; color: var(--text-muted); cursor: pointer; transition: 0.3s; }
+        .nav-item.active { color: var(--text-main); font-style: italic; font-weight: 600; border-bottom: 1px solid #000; }
 
-        .product-article {
-            display: flex;
-            flex-direction: column;
-            opacity: 0; /* Скрыто для анимации */
-            transform: translateY(30px);
-            transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-
-        .product-article.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .photo-frame {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 3/4; /* Вертикальный формат */
-            overflow: hidden;
-            margin-bottom: 15px;
-        }
-
-        .product-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 1.5s ease; /* Медленный зум */
-        }
-
-        /* Эффект: при нажатии фото медленно приближается */
-        .photo-frame:active .product-img {
-            transform: scale(1.1);
-        }
-
-        /* Бейдж "New" или "Exclusive" */
-        .badge {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: #fff;
-            color: #000;
-            padding: 4px 8px;
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-family: var(--font-sans);
-        }
-
-        .product-info {
-            text-align: center; /* Центрируем текст как в журнале */
-        }
-
-        .product-category-tag {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--text-muted);
-            margin-bottom: 5px;
-        }
-
-        .product-title {
-            font-family: var(--font-serif);
-            font-size: 24px; /* Крупный заголовок */
-            font-weight: 400;
-            margin-bottom: 5px;
-            line-height: 1.1;
-        }
+        /* Grid */
+        .editorial-grid { display: grid; grid-template-columns: 1fr; gap: 50px; padding: 30px 20px; max-width: 600px; margin: 0 auto; }
+        .product-article { opacity: 0; transform: translateY(30px); transition: all 0.8s ease; }
+        .product-article.visible { opacity: 1; transform: translateY(0); }
+        .photo-frame { position: relative; width: 100%; aspect-ratio: 3/4; overflow: hidden; margin-bottom: 15px; background: #f4f4f4; }
+        .product-img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.5s ease; }
+        .badge { position: absolute; top: 10px; left: 10px; background: #fff; color: #000; padding: 4px 10px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .product-info { text-align: center; }
+        .product-title { font-family: var(--font-serif); font-size: 24px; margin-bottom: 5px; line-height: 1.1; }
+        .product-price { font-family: var(--font-serif); font-size: 18px; font-style: italic; margin-bottom: 15px; }
         
-        .product-price {
-            font-family: var(--font-serif);
-            font-size: 18px;
-            font-style: italic;
-            margin-bottom: 15px;
-        }
-
         /* Controls */
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .size-select-editorial {
-            border: none;
-            border-bottom: 1px solid #000;
-            background: transparent;
-            font-family: var(--font-sans);
-            font-size: 12px;
-            padding: 5px 15px 5px 0;
-            border-radius: 0;
-            min-width: 80px;
-        }
-
-        .add-btn-editorial {
-            background: #000;
-            color: #fff;
-            border: none;
-            padding: 8px 20px;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .add-btn-editorial:active {
-            background: #333;
-        }
-
-        /* --- CONTACT FOOTER --- */
-        .footer-editor {
-            margin-top: 50px;
-            text-align: center;
-            padding: 40px 20px;
-            background: #f9f9f9;
-        }
-
-        .footer-text {
-            font-family: var(--font-serif);
-            font-size: 18px;
-            font-style: italic;
-            margin-bottom: 20px;
-        }
-
-        .contact-btn {
-            text-decoration: none;
-            color: #000;
-            border: 1px solid #000;
-            padding: 10px 30px;
-            text-transform: uppercase;
-            font-size: 11px;
-            letter-spacing: 2px;
-        }
-
-        /* Анимации появления */
-        @keyframes fadeDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        .controls { display: flex; justify-content: center; gap: 10px; align-items: center; }
+        .size-select { border: none; border-bottom: 1px solid #000; background: transparent; font-family: var(--font-sans); font-size: 12px; padding: 5px 15px 5px 0; min-width: 80px; border-radius: 0; }
+        .add-btn { background: #000; color: #fff; border: none; padding: 10px 25px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; }
+        
+        @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .error-msg { text-align: center; padding: 20px; color: #red; font-size: 12px; }
     </style>
 </head>
 <body>
 
-    <!-- ОБЛОЖКА (HERO) -->
+    <!-- ЭКРАН ЗАГРУЗКИ -->
+    <div id="preloader">
+        <div class="loader-logo">SLIYANIE</div>
+        <div class="spinner"></div>
+    </div>
+
     <div class="magazine-cover">
-        <!-- Фоновая картинка для обложки (поставьте красивое вертикальное фото) -->
-        <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=1000&auto=format&fit=crop" class="cover-bg" alt="Cover">
-        <div class="cover-overlay"></div>
-        
-        <!-- ЛОГОТИП -->
-        <div class="logo-container brand-logo-large">
+        <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=800" class="cover-bg" alt="Cover">
+        <div style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.15);"></div>
+        <div class="brand-logo-large">
             <img src="logo.png" alt="SLIYANIE" style="width: 100%; display: block;">
         </div>
-        
-        <div class="issue-date">The New Collection • 2025</div>
+        <div class="issue-date">The New Collection</div>
     </div>
 
-    <!-- БЕГУЩАЯ СТРОКА -->
     <div class="marquee-container">
         <div class="marquee-content">
-            NEW ARRIVALS &nbsp; • &nbsp; FREE SHIPPING ON ORDERS OVER 50,000 &nbsp; • &nbsp; LUXURY FEMME COUTURE &nbsp; • &nbsp; SLIYANIE &nbsp; • &nbsp; 
-            NEW ARRIVALS &nbsp; • &nbsp; FREE SHIPPING ON ORDERS OVER 50,000 &nbsp; • &nbsp; LUXURY FEMME COUTURE &nbsp; • &nbsp; SLIYANIE &nbsp; • &nbsp; 
+            NEW ARRIVALS &nbsp; • &nbsp; LUXURY FEMME COUTURE &nbsp; • &nbsp; SLIYANIE &nbsp; • &nbsp; WORLDWIDE SHIPPING &nbsp; • &nbsp;
+            NEW ARRIVALS &nbsp; • &nbsp; LUXURY FEMME COUTURE &nbsp; • &nbsp; SLIYANIE &nbsp; • &nbsp; WORLDWIDE SHIPPING &nbsp; • &nbsp;
         </div>
     </div>
 
-    <!-- МЕНЮ (как рубрики журнала) -->
-    <div class="nav-tabs" id="nav-tabs">
-        <div class="nav-item active" onclick="filterProducts('all', this)">All Stories</div>
+    <div class="nav-tabs">
+        <div class="nav-item active" onclick="filterProducts('all', this)">All</div>
         <div class="nav-item" onclick="filterProducts('dresses', this)">Dresses</div>
         <div class="nav-item" onclick="filterProducts('suits', this)">Suits</div>
+        <div class="nav-item" onclick="filterProducts('outerwear', this)">Outerwear</div>
     </div>
 
-    <!-- СЕТКА ТОВАРОВ -->
     <div class="editorial-grid" id="product-grid">
-        <!-- Товары загружаются JS -->
-    </div>
-
-    <!-- ПОДВАЛ -->
-    <div class="footer-editor">
-        <p class="footer-text">"Style is a way to say who you are without having to speak."</p>
-        <a href="https://t.me/ВАШ_НИКНЕЙМ" class="contact-btn">Contact Stylist</a>
+        <!-- Сюда загрузятся товары -->
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Данные товаров (Фото подобраны более "эдиториал")
-        const products = [
-            { 
-                id: 1, 
-                category: 'dresses', 
-                name: 'The Black Swan', 
-                price: 15900, 
-                badge: 'Best Seller',
-                image: 'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=600&q=80' 
-            },
-            { 
-                id: 2, 
-                category: 'suits', 
-                name: 'Power Suit: Ivory', 
-                price: 24000, 
-                badge: 'New Season',
-                image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=600&q=80' 
-            },
-            { 
-                id: 3, 
-                category: 'dresses', 
-                name: 'Midnight Silk', 
-                price: 12500, 
-                badge: null,
-                image: 'https://images.unsplash.com/photo-1612336307429-8a898d10e223?w=600&q=80' 
-            },
-            { 
-                id: 4, 
-                category: 'suits', 
-                name: 'Oversized Mood', 
-                price: 18000, 
-                badge: 'Editor\'s Pick',
-                image: 'https://images.unsplash.com/photo-1548624149-f31c2228b788?w=600&q=80' 
-            }
-        ];
+        // ВАЖНО: ВСТАВЬТЕ СЮДА ВАШУ ССЫЛКУ ИЗ GOOGLE APPS SCRIPT
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyFHqJpvqsVICG7V6mYWxvAdWGOJnZtizMrGSbhIaTNoWaL_AoArdmR4ELfT4BM-Uk5/exec'; 
 
+        let allProducts = [];
         let cart = [];
 
-        function renderProducts(filter = 'all') {
+        // 1. Загрузка данных
+        async function fetchProducts() {
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+                const data = await response.json();
+                
+                allProducts = data;
+                
+                // Убираем прелоадер
+                const preloader = document.getElementById('preloader');
+                preloader.style.opacity = '0';
+                setTimeout(() => preloader.style.display = 'none', 500);
+
+                renderProducts('all');
+            } catch (error) {
+                console.error(error);
+                document.getElementById('preloader').innerHTML = '<div class="error-msg">Ошибка загрузки коллекции.<br>Попробуйте позже.</div>';
+            }
+        }
+
+        // 2. Отрисовка
+        function renderProducts(filter) {
             const container = document.getElementById('product-grid');
             container.innerHTML = '';
 
-            const filtered = filter === 'all' ? products : products.filter(p => p.category === filter);
+            const filtered = filter === 'all' ? allProducts : allProducts.filter(p => p.category === filter);
 
-            filtered.forEach((product, index) => {
-                const article = document.createElement('div');
-                article.className = 'product-article';
-                
+            if (filtered.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:40px; font-style:italic; color:#999;">No items in this category yet.</div>';
+                return;
+            }
+
+            filtered.forEach((product) => {
+                // Генерируем опции размеров
+                let sizeOptions = '<option value="" disabled selected>Size</option>';
+                if(product.sizes && product.sizes.length > 0) {
+                    product.sizes.forEach(s => sizeOptions += `<option value="${s}">${s}</option>`);
+                } else {
+                    sizeOptions = '<option value="ONE">One Size</option>';
+                }
+
                 const badgeHtml = product.badge ? `<div class="badge">${product.badge}</div>` : '';
 
+                const article = document.createElement('div');
+                article.className = 'product-article';
                 article.innerHTML = `
                     <div class="photo-frame">
                         ${badgeHtml}
-                        <img src="${product.image}" class="product-img" loading="lazy" alt="${product.name}">
+                        <img src="${product.image}" class="product-img" alt="${product.name}">
                     </div>
                     <div class="product-info">
-                        <div class="product-category-tag">${product.category}</div>
                         <div class="product-title">${product.name}</div>
-                        <div class="product-price">${product.price.toLocaleString()} ₽</div>
-                        
+                        <div class="product-price">${parseInt(product.price).toLocaleString()} ₽</div>
                         <div class="controls">
-                            <select class="size-select-editorial" id="size-${product.id}">
-                                <option value="" disabled selected>Select Size</option>
-                                <option value="XS">XS</option>
-                                <option value="S">S</option>
-                                <option value="M">M</option>
-                                <option value="L">L</option>
+                            <select class="size-select" id="size-${product.id}">
+                                ${sizeOptions}
                             </select>
-                            <button class="add-btn-editorial" onclick="addToCart(${product.id}, this)">Add to Bag</button>
+                            <button class="add-btn" onclick="addToCart(${product.id}, this)">Add to Bag</button>
                         </div>
                     </div>
                 `;
                 container.appendChild(article);
             });
 
-            // Запуск анимации появления при скролле (Intersection Observer)
             observeArticles();
         }
 
+        // 3. Логика интерфейса
         function filterProducts(category, btn) {
             tg.HapticFeedback.selectionChanged();
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -447,7 +201,7 @@
                 return;
             }
 
-            const product = products.find(p => p.id === id);
+            const product = allProducts.find(p => p.id === id);
             const existing = cart.find(i => i.id === id && i.size === size);
             
             if(!existing) cart.push({...product, size, quantity: 1});
@@ -455,10 +209,9 @@
 
             tg.HapticFeedback.notificationOccurred('success');
             
-            // Красивая смена текста кнопки
-            const originalText = btn.innerText;
+            const oldText = btn.innerText;
             btn.innerText = "IN BAG";
-            setTimeout(() => btn.innerText = originalText, 1500);
+            setTimeout(() => btn.innerText = oldText, 1500);
 
             updateMainButton();
         }
@@ -476,22 +229,18 @@
         tg.MainButton.setParams({ color: '#000000', text_color: '#ffffff' });
         tg.MainButton.onClick(() => tg.sendData(JSON.stringify(cart)));
 
-        // Наблюдатель за скроллом (Scroll Observer) для анимации появления
         function observeArticles() {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                    }
+                    if (entry.isIntersecting) entry.target.classList.add('visible');
                 });
             }, { threshold: 0.1 });
-
             document.querySelectorAll('.product-article').forEach(el => observer.observe(el));
         }
 
-        renderProducts();
+        // ЗАПУСК
+        fetchProducts();
 
     </script>
 </body>
 </html>
-
