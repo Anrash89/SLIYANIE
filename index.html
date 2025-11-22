@@ -200,17 +200,17 @@
         
         .photo-frame:active .product-img { transform: scale(1.05); }
 
-        /* --- ВОДЯНОЙ ЗНАК (НОВОЕ) --- */
+        /* --- ВОДЯНОЙ ЗНАК --- */
         .watermark {
             position: absolute;
-            top: 12px;       /* Отступ сверху */
-            right: 12px;     /* Отступ справа */
-            width: 40px;     /* Размер логотипа */
+            top: 12px;
+            right: 12px;
+            width: 40px;
             height: auto;
-            z-index: 5;      /* Чтобы был поверх фото */
-            opacity: 0.6;    /* Прозрачность (0.6 = 60%) */
-            pointer-events: none; /* Чтобы клик проходил сквозь лого */
-            mix-blend-mode: overlay; /* Красивое наложение (попробуйте удалить эту строку если лого плохо видно) */
+            z-index: 5;
+            opacity: 0.6;
+            pointer-events: none;
+            mix-blend-mode: overlay;
         }
 
         /* --- BADGES --- */
@@ -223,7 +223,7 @@
             font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            z-index: 6; /* Выше чем водяной знак */
+            z-index: 6;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
@@ -340,7 +340,7 @@
         <div class="cover-overlay"></div>
         
         <div class="brand-logo-large">
-            <!-- Главный логотип на обложке -->
+            <!-- Используем logo.png, как ты просил -->
             <img src="logo.png" alt="SLIYANIE">
         </div>
         <div class="issue-date">The New Collection</div>
@@ -376,24 +376,22 @@
         tg.expand();
         tg.enableClosingConfirmation();
 
-        // ============================================================
-        // ВСТАВЬТЕ СЮДА ССЫЛКУ НА GOOGLE APPS SCRIPT
-        // ============================================================
+        // Ссылка уже вставлена
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyFHqJpvqsVICG7V6mYWxvAdWGOJnZtizMrGSbhIaTNoWaL_AoArdmR4ELfT4BM-Uk5/exec'; 
-        // ============================================================
 
         let allProducts = [];
         let cart = [];
 
         async function fetchProducts() {
             try {
-                if (GOOGLE_SCRIPT_URL.includes('ВСТАВЬТЕ')) {
-                    throw new Error("URL скрипта не указан");
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+                
+                // Если доступ не открыт "ДЛЯ ВСЕХ", тут будет ошибка
+                if (!response.ok) {
+                    throw new Error("Ошибка доступа или сервера");
                 }
 
-                const response = await fetch(GOOGLE_SCRIPT_URL);
                 const data = await response.json();
-                
                 allProducts = data;
                 
                 const preloader = document.getElementById('preloader');
@@ -405,7 +403,9 @@
                 console.error(error);
                 document.getElementById('preloader').innerHTML = `
                     <div class="error-msg">
-                        Ошибка подключения.<br>Проверьте ссылку в коде.
+                        Ошибка загрузки!<br>
+                        1. Проверь, что в Apps Script стоит доступ "ВСЕ" (Anyone).<br>
+                        2. Проверь, что лист называется "Products".
                     </div>`;
             }
         }
@@ -427,6 +427,7 @@
                 let btnDisabled = false;
                 let imgStyle = '';
 
+                // Логика количества
                 if (product.quantity <= 0) {
                     badgeHtml = `<div class="badge sold-out">SOLD OUT</div>`;
                     btnText = 'Sold Out';
@@ -450,13 +451,11 @@
                 const article = document.createElement('div');
                 article.className = 'product-article';
                 
-                // Убедитесь, что файл watermark.png лежит рядом с index.html
+                // watermark.png должен лежать в одной папке с index.html
                 article.innerHTML = `
                     <div class="photo-frame">
                         ${badgeHtml}
-                        <!-- ВОТ ЗДЕСЬ ДОБАВЛЕН ЛОГОТИП-ВОДЯНОЙ ЗНАК -->
                         <img src="watermark.png" class="watermark" alt=""> 
-                        
                         <img src="${product.image}" class="product-img" style="${imgStyle}" loading="lazy" alt="${product.name}">
                     </div>
                     <div class="product-info">
@@ -490,4 +489,69 @@
 
         function addToCart(id, btnElement) {
             const sizeSelect = document.getElementById(`size-${id}`);
+            const size = sizeSelect.value;
 
+            if (!size) {
+                tg.HapticFeedback.notificationOccurred('error');
+                sizeSelect.style.borderBottom = "1px solid " + getComputedStyle(document.documentElement).getPropertyValue('--alert-color');
+                setTimeout(() => {
+                    sizeSelect.style.borderBottom = "1px solid #000";
+                }, 2000);
+                return;
+            }
+
+            const product = allProducts.find(p => p.id === id);
+            const existingItem = cart.find(item => item.id === id && item.size === size);
+
+            if (!existingItem) {
+                cart.push({ ...product, size: size, quantity: 1 });
+            } else {
+                existingItem.quantity += 1;
+            }
+
+            tg.HapticFeedback.notificationOccurred('success');
+            
+            const originalText = btnElement.innerText;
+            btnElement.innerText = "IN BAG";
+            btnElement.style.backgroundColor = "#333";
+            setTimeout(() => {
+                btnElement.innerText = originalText;
+                btnElement.style.backgroundColor = "#000";
+            }, 1500);
+
+            updateMainButton();
+        }
+
+        function updateMainButton() {
+            if (cart.length > 0) {
+                let total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+                tg.MainButton.setText(`CHECKOUT • ${total.toLocaleString()} ₽`);
+                if (!tg.MainButton.isVisible) tg.MainButton.show();
+            } else {
+                tg.MainButton.hide();
+            }
+        }
+
+        tg.MainButton.setParams({ color: '#000000', text_color: '#ffffff' });
+        tg.MainButton.onClick(function() {
+            tg.sendData(JSON.stringify(cart));
+        });
+
+        function observeArticles() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.product-article').forEach(el => observer.observe(el));
+        }
+
+        // Запуск
+        fetchProducts();
+
+    </script>
+</body>
+</html
