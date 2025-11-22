@@ -3,25 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SLIYANIE | Magazine Issue</title>
+    <title>SLIYANIE | Luxury Femme Couture</title>
+    
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Raleway:wght@300;400;500&display=swap" rel="stylesheet">
 
     <style>
-        /* --- CSS Стили (Те же, плюс Preloader) --- */
         :root {
             --bg-color: #ffffff;
             --text-main: #111111;
             --text-muted: #666666;
+            --accent: #000000;
+            --alert-color: #9e0b0b; 
             --font-serif: 'Cormorant Garamond', serif;
             --font-sans: 'Raleway', sans-serif;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-color); color: var(--text-main); font-family: var(--font-sans); overflow-x: hidden; padding-bottom: 100px; min-height: 100vh; }
 
-        /* Preloader */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            overflow-x: hidden;
+            padding-bottom: 100px;
+            min-height: 100vh;
+        }
+
+        /* --- PRELOADER --- */
         #preloader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #fff; z-index: 9999;
@@ -29,60 +47,301 @@
             justify-content: center; align-items: center;
             transition: opacity 0.5s ease;
         }
-        .loader-logo { font-family: var(--font-serif); font-size: 24px; letter-spacing: 2px; margin-bottom: 20px; animation: pulse 2s infinite; }
-        .spinner { width: 30px; height: 30px; border: 2px solid #f3f3f3; border-top: 2px solid #000; border-radius: 50%; animation: spin 1s linear infinite; }
+        .loader-logo { 
+            font-family: var(--font-serif); 
+            font-size: 24px; 
+            letter-spacing: 2px; 
+            margin-bottom: 20px; 
+            text-transform: uppercase;
+            animation: pulse 2s infinite; 
+        }
+        .spinner { 
+            width: 30px; height: 30px; 
+            border: 2px solid #f3f3f3; 
+            border-top: 2px solid #000; 
+            border-radius: 50%; 
+            animation: spin 1s linear infinite; 
+        }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
 
-        /* Hero & Layout */
-        .magazine-cover { position: relative; width: 100%; height: 65vh; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        .cover-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; filter: grayscale(100%); opacity: 0.9; }
-        .brand-logo-large { width: 160px; margin-bottom: 10px; z-index: 2; animation: fadeDown 1s ease-out; }
-        .issue-date { font-family: var(--font-serif); font-style: italic; font-size: 16px; letter-spacing: 1px; z-index: 2; color: #fff; mix-blend-mode: difference; }
+        /* --- HERO SECTION --- */
+        .magazine-cover {
+            position: relative;
+            width: 100%;
+            height: 65vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .cover-bg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            filter: grayscale(100%);
+            opacity: 0.9;
+        }
         
-        /* Marquee */
-        .marquee-container { background: #000; color: #fff; padding: 8px 0; overflow: hidden; white-space: nowrap; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; }
+        .cover-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .brand-logo-large {
+            width: 160px;
+            margin-bottom: 15px;
+            z-index: 2;
+            animation: fadeDown 1.2s ease-out;
+        }
+        
+        .brand-logo-large img { width: 100%; display: block; }
+
+        .issue-date {
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-size: 16px;
+            letter-spacing: 1px;
+            z-index: 2;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            animation: fadeUp 1.2s ease-out;
+        }
+
+        /* --- MARQUEE --- */
+        .marquee-container {
+            background: #000;
+            color: #fff;
+            padding: 8px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            font-family: var(--font-sans);
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
         .marquee-content { display: inline-block; animation: marquee 20s linear infinite; }
         @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
-        /* Tabs */
-        .nav-tabs { position: sticky; top: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(5px); z-index: 100; display: flex; justify-content: center; gap: 20px; padding: 15px 0; border-bottom: 1px solid #f0f0f0; }
-        .nav-item { font-family: var(--font-serif); font-size: 18px; color: var(--text-muted); cursor: pointer; transition: 0.3s; }
-        .nav-item.active { color: var(--text-main); font-style: italic; font-weight: 600; border-bottom: 1px solid #000; }
+        /* --- TABS --- */
+        .nav-tabs {
+            position: sticky;
+            top: 0;
+            background: rgba(255,255,255,0.96);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s;
+        }
 
-        /* Grid */
-        .editorial-grid { display: grid; grid-template-columns: 1fr; gap: 50px; padding: 30px 20px; max-width: 600px; margin: 0 auto; }
-        .product-article { opacity: 0; transform: translateY(30px); transition: all 0.8s ease; }
+        .nav-item {
+            font-family: var(--font-serif);
+            font-size: 18px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+        }
+
+        .nav-item.active {
+            color: var(--text-main);
+            font-style: italic;
+            font-weight: 600;
+        }
+        
+        .nav-item.active::after {
+            content: ''; position: absolute; bottom: -4px; left: 0;
+            width: 100%; height: 1px; background: #000;
+        }
+
+        /* --- PRODUCT GRID --- */
+        .editorial-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 50px;
+            padding: 30px 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .product-article {
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
         .product-article.visible { opacity: 1; transform: translateY(0); }
-        .photo-frame { position: relative; width: 100%; aspect-ratio: 3/4; overflow: hidden; margin-bottom: 15px; background: #f4f4f4; }
-        .product-img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.5s ease; }
-        .badge { position: absolute; top: 10px; left: 10px; background: #fff; color: #000; padding: 4px 10px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+
+        .photo-frame {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 3/4;
+            overflow: hidden;
+            margin-bottom: 15px;
+            background-color: #f4f4f4;
+        }
+
+        .product-img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 1.5s ease, opacity 0.3s;
+        }
+        
+        .photo-frame:active .product-img { transform: scale(1.05); }
+
+        /* --- ВОДЯНОЙ ЗНАК (НОВОЕ) --- */
+        .watermark {
+            position: absolute;
+            top: 12px;       /* Отступ сверху */
+            right: 12px;     /* Отступ справа */
+            width: 40px;     /* Размер логотипа */
+            height: auto;
+            z-index: 5;      /* Чтобы был поверх фото */
+            opacity: 0.6;    /* Прозрачность (0.6 = 60%) */
+            pointer-events: none; /* Чтобы клик проходил сквозь лого */
+            mix-blend-mode: overlay; /* Красивое наложение (попробуйте удалить эту строку если лого плохо видно) */
+        }
+
+        /* --- BADGES --- */
+        .badge {
+            position: absolute;
+            top: 10px; left: 10px;
+            background: #fff;
+            color: #000;
+            padding: 5px 10px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 6; /* Выше чем водяной знак */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .badge.alert {
+            background-color: var(--alert-color);
+            color: #fff;
+            border: none;
+        }
+
+        .badge.sold-out {
+            background-color: #222;
+            color: #fff;
+            text-decoration: line-through;
+        }
+
+        /* --- PRODUCT INFO --- */
         .product-info { text-align: center; }
-        .product-title { font-family: var(--font-serif); font-size: 24px; margin-bottom: 5px; line-height: 1.1; }
-        .product-price { font-family: var(--font-serif); font-size: 18px; font-style: italic; margin-bottom: 15px; }
+
+        .product-title {
+            font-family: var(--font-serif);
+            font-size: 24px;
+            margin-bottom: 5px;
+            line-height: 1.1;
+        }
+
+        .product-price {
+            font-family: var(--font-serif);
+            font-size: 18px;
+            font-style: italic;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        /* --- CONTROLS --- */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .size-select {
+            border: none;
+            border-bottom: 1px solid #000;
+            background: transparent;
+            font-family: var(--font-sans);
+            font-size: 12px;
+            padding: 5px 15px 5px 0;
+            border-radius: 0;
+            min-width: 80px;
+            appearance: none;
+            color: var(--text-main);
+        }
         
-        /* Controls */
-        .controls { display: flex; justify-content: center; gap: 10px; align-items: center; }
-        .size-select { border: none; border-bottom: 1px solid #000; background: transparent; font-family: var(--font-sans); font-size: 12px; padding: 5px 15px 5px 0; min-width: 80px; border-radius: 0; }
-        .add-btn { background: #000; color: #fff; border: none; padding: 10px 25px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; }
-        
+        .size-select:disabled {
+            border-bottom: 1px solid #ccc;
+            color: #ccc;
+        }
+
+        .add-btn {
+            background: #000;
+            color: #fff;
+            border: 1px solid #000;
+            padding: 10px 25px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 120px;
+        }
+
+        .add-btn:active { background: #333; }
+
+        .add-btn:disabled {
+            background: #f0f0f0;
+            border-color: #f0f0f0;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        /* --- FOOTER --- */
+        .footer-editor {
+            margin-top: 50px;
+            text-align: center;
+            padding: 40px 20px;
+            background: #f9f9f9;
+        }
+        .contact-link {
+            text-decoration: none;
+            color: #000;
+            border-bottom: 1px solid #000;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding-bottom: 2px;
+        }
+
         @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-        .error-msg { text-align: center; padding: 20px; color: #red; font-size: 12px; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .error-msg { text-align: center; color: var(--alert-color); font-size: 12px; padding: 20px; }
+
     </style>
 </head>
 <body>
 
-    <!-- ЭКРАН ЗАГРУЗКИ -->
     <div id="preloader">
         <div class="loader-logo">SLIYANIE</div>
         <div class="spinner"></div>
     </div>
 
     <div class="magazine-cover">
-        <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=800" class="cover-bg" alt="Cover">
-        <div style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.15);"></div>
+        <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=800&auto=format&fit=crop" class="cover-bg" alt="Cover">
+        <div class="cover-overlay"></div>
+        
         <div class="brand-logo-large">
-            <img src="logo.png" alt="SLIYANIE" style="width: 100%; display: block;">
+            <!-- Главный логотип на обложке -->
+            <img src="logo.png" alt="SLIYANIE">
         </div>
         <div class="issue-date">The New Collection</div>
     </div>
@@ -102,28 +361,41 @@
     </div>
 
     <div class="editorial-grid" id="product-grid">
-        <!-- Сюда загрузятся товары -->
+        <!-- JS генерирует товары -->
+    </div>
+
+    <div class="footer-editor">
+        <p style="font-family: 'Cormorant Garamond', serif; font-style: italic; margin-bottom: 20px; font-size: 18px;">
+            "Style is a way to say who you are without having to speak."
+        </p>
+        <a href="https://t.me/ВАШ_НИКНЕЙМ" class="contact-link">Contact Manager</a>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
+        tg.enableClosingConfirmation();
 
-        // ВАЖНО: ВСТАВЬТЕ СЮДА ВАШУ ССЫЛКУ ИЗ GOOGLE APPS SCRIPT
+        // ============================================================
+        // ВСТАВЬТЕ СЮДА ССЫЛКУ НА GOOGLE APPS SCRIPT
+        // ============================================================
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyFHqJpvqsVICG7V6mYWxvAdWGOJnZtizMrGSbhIaTNoWaL_AoArdmR4ELfT4BM-Uk5/exec'; 
+        // ============================================================
 
         let allProducts = [];
         let cart = [];
 
-        // 1. Загрузка данных
         async function fetchProducts() {
             try {
+                if (GOOGLE_SCRIPT_URL.includes('ВСТАВЬТЕ')) {
+                    throw new Error("URL скрипта не указан");
+                }
+
                 const response = await fetch(GOOGLE_SCRIPT_URL);
                 const data = await response.json();
                 
                 allProducts = data;
                 
-                // Убираем прелоадер
                 const preloader = document.getElementById('preloader');
                 preloader.style.opacity = '0';
                 setTimeout(() => preloader.style.display = 'none', 500);
@@ -131,11 +403,13 @@
                 renderProducts('all');
             } catch (error) {
                 console.error(error);
-                document.getElementById('preloader').innerHTML = '<div class="error-msg">Ошибка загрузки коллекции.<br>Попробуйте позже.</div>';
+                document.getElementById('preloader').innerHTML = `
+                    <div class="error-msg">
+                        Ошибка подключения.<br>Проверьте ссылку в коде.
+                    </div>`;
             }
         }
 
-        // 2. Отрисовка
         function renderProducts(filter) {
             const container = document.getElementById('product-grid');
             container.innerHTML = '';
@@ -143,12 +417,29 @@
             const filtered = filter === 'all' ? allProducts : allProducts.filter(p => p.category === filter);
 
             if (filtered.length === 0) {
-                container.innerHTML = '<div style="text-align:center; padding:40px; font-style:italic; color:#999;">No items in this category yet.</div>';
+                container.innerHTML = '<div style="text-align:center; padding:40px; font-style:italic; color:#999;">В этой категории пока нет товаров.</div>';
                 return;
             }
 
             filtered.forEach((product) => {
-                // Генерируем опции размеров
+                let badgeHtml = '';
+                let btnText = 'Add to Bag';
+                let btnDisabled = false;
+                let imgStyle = '';
+
+                if (product.quantity <= 0) {
+                    badgeHtml = `<div class="badge sold-out">SOLD OUT</div>`;
+                    btnText = 'Sold Out';
+                    btnDisabled = true;
+                    imgStyle = 'opacity: 0.6; filter: grayscale(100%);';
+                } 
+                else if (product.quantity < 5) {
+                    badgeHtml = `<div class="badge alert">Last Items</div>`;
+                } 
+                else if (product.badge) {
+                    badgeHtml = `<div class="badge">${product.badge}</div>`;
+                }
+
                 let sizeOptions = '<option value="" disabled selected>Size</option>';
                 if(product.sizes && product.sizes.length > 0) {
                     product.sizes.forEach(s => sizeOptions += `<option value="${s}">${s}</option>`);
@@ -156,23 +447,31 @@
                     sizeOptions = '<option value="ONE">One Size</option>';
                 }
 
-                const badgeHtml = product.badge ? `<div class="badge">${product.badge}</div>` : '';
-
                 const article = document.createElement('div');
                 article.className = 'product-article';
+                
+                // Убедитесь, что файл watermark.png лежит рядом с index.html
                 article.innerHTML = `
                     <div class="photo-frame">
                         ${badgeHtml}
-                        <img src="${product.image}" class="product-img" alt="${product.name}">
+                        <!-- ВОТ ЗДЕСЬ ДОБАВЛЕН ЛОГОТИП-ВОДЯНОЙ ЗНАК -->
+                        <img src="watermark.png" class="watermark" alt=""> 
+                        
+                        <img src="${product.image}" class="product-img" style="${imgStyle}" loading="lazy" alt="${product.name}">
                     </div>
                     <div class="product-info">
                         <div class="product-title">${product.name}</div>
                         <div class="product-price">${parseInt(product.price).toLocaleString()} ₽</div>
+                        
                         <div class="controls">
-                            <select class="size-select" id="size-${product.id}">
+                            <select class="size-select" id="size-${product.id}" ${btnDisabled ? 'disabled' : ''}>
                                 ${sizeOptions}
                             </select>
-                            <button class="add-btn" onclick="addToCart(${product.id}, this)">Add to Bag</button>
+                            <button class="add-btn" 
+                                    onclick="addToCart(${product.id}, this)" 
+                                    ${btnDisabled ? 'disabled' : ''}>
+                                ${btnText}
+                            </button>
                         </div>
                     </div>
                 `;
@@ -182,7 +481,6 @@
             observeArticles();
         }
 
-        // 3. Логика интерфейса
         function filterProducts(category, btn) {
             tg.HapticFeedback.selectionChanged();
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -190,57 +488,5 @@
             renderProducts(category);
         }
 
-        function addToCart(id, btn) {
+        function addToCart(id, btnElement) {
             const sizeSelect = document.getElementById(`size-${id}`);
-            const size = sizeSelect.value;
-
-            if (!size) {
-                tg.HapticFeedback.notificationOccurred('error');
-                sizeSelect.style.borderBottom = "1px solid red";
-                setTimeout(() => sizeSelect.style.borderBottom = "1px solid #000", 2000);
-                return;
-            }
-
-            const product = allProducts.find(p => p.id === id);
-            const existing = cart.find(i => i.id === id && i.size === size);
-            
-            if(!existing) cart.push({...product, size, quantity: 1});
-            else existing.quantity++;
-
-            tg.HapticFeedback.notificationOccurred('success');
-            
-            const oldText = btn.innerText;
-            btn.innerText = "IN BAG";
-            setTimeout(() => btn.innerText = oldText, 1500);
-
-            updateMainButton();
-        }
-
-        function updateMainButton() {
-            if (cart.length > 0) {
-                let total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-                tg.MainButton.setText(`CHECKOUT • ${total.toLocaleString()} ₽`);
-                tg.MainButton.show();
-            } else {
-                tg.MainButton.hide();
-            }
-        }
-
-        tg.MainButton.setParams({ color: '#000000', text_color: '#ffffff' });
-        tg.MainButton.onClick(() => tg.sendData(JSON.stringify(cart)));
-
-        function observeArticles() {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) entry.target.classList.add('visible');
-                });
-            }, { threshold: 0.1 });
-            document.querySelectorAll('.product-article').forEach(el => observer.observe(el));
-        }
-
-        // ЗАПУСК
-        fetchProducts();
-
-    </script>
-</body>
-</html>
