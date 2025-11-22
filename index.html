@@ -200,17 +200,25 @@
         
         .photo-frame:active .product-img { transform: scale(1.05); }
 
-        /* --- ВОДЯНОЙ ЗНАК --- */
+        /* --- ЛОГОТИП НА ФОТО (ПРАВЫЙ ВЕРХНИЙ УГОЛ) --- */
         .watermark {
             position: absolute;
-            top: 12px;
-            right: 12px;
-            width: 40px;
+            
+            /* Ставим в правый верхний угол */
+            top: 10px;
+            right: 10px;
+            
+            /* Размер: 22% от ширины карточки (достаточно крупно) */
+            width: 22%; 
             height: auto;
+            
             z-index: 5;
-            opacity: 0.6;
+            
+            /* Убираем прозрачность, чтобы было четко видно */
+            opacity: 1.0; 
+            
             pointer-events: none;
-            mix-blend-mode: overlay;
+            /* Убрали mix-blend-mode, чтобы цвета были оригинальные */
         }
 
         /* --- BADGES --- */
@@ -340,7 +348,6 @@
         <div class="cover-overlay"></div>
         
         <div class="brand-logo-large">
-            <!-- Используем logo.png, как ты просил -->
             <img src="logo.png" alt="SLIYANIE">
         </div>
         <div class="issue-date">The New Collection</div>
@@ -385,11 +392,7 @@
         async function fetchProducts() {
             try {
                 const response = await fetch(GOOGLE_SCRIPT_URL);
-                
-                // Если доступ не открыт "ДЛЯ ВСЕХ", тут будет ошибка
-                if (!response.ok) {
-                    throw new Error("Ошибка доступа или сервера");
-                }
+                if (!response.ok) throw new Error("Ошибка доступа");
 
                 const data = await response.json();
                 allProducts = data;
@@ -404,8 +407,7 @@
                 document.getElementById('preloader').innerHTML = `
                     <div class="error-msg">
                         Ошибка загрузки!<br>
-                        1. Проверь, что в Apps Script стоит доступ "ВСЕ" (Anyone).<br>
-                        2. Проверь, что лист называется "Products".
+                        Проверь доступ к скрипту (нужно "Anyone").
                     </div>`;
             }
         }
@@ -427,7 +429,6 @@
                 let btnDisabled = false;
                 let imgStyle = '';
 
-                // Логика количества
                 if (product.quantity <= 0) {
                     badgeHtml = `<div class="badge sold-out">SOLD OUT</div>`;
                     btnText = 'Sold Out';
@@ -451,11 +452,13 @@
                 const article = document.createElement('div');
                 article.className = 'product-article';
                 
-                // watermark.png должен лежать в одной папке с index.html
                 article.innerHTML = `
                     <div class="photo-frame">
                         ${badgeHtml}
-                        <img src="watermark.png" class="watermark" alt=""> 
+                        
+                        <!-- ЛОГОТИП: Правый верхний угол, без прозрачности -->
+                        <img src="logo.png" class="watermark" alt=""> 
+                        
                         <img src="${product.image}" class="product-img" style="${imgStyle}" loading="lazy" alt="${product.name}">
                     </div>
                     <div class="product-info">
@@ -554,4 +557,4 @@
 
     </script>
 </body>
-</html
+</html>
