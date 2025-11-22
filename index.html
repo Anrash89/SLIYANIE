@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <!-- Важный тег для корректного отображения на мобильных -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SLIYANIE - Luxury Femme Couture</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-primary: #000000;
+            --text-secondary: #888888;
+            --accent: #000000;
+            --card-bg: #ffffff;
+            --btn-bg: #000000;
+            --btn-text: #ffffff;
+            --border-color: #f0f0f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent; /* Убирает синюю подсветку при тапе на Android */
+            outline: none;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            padding-bottom: 90px; /* Отступ под MainButton */
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* --- АНИМАЦИИ --- */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* --- HEADER --- */
+        header {
+            text-align: center;
+            padding: 25px 0 15px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .logo-container {
+            width: 140px; 
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .tagline {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 10px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-top: 8px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* --- STICKY CATEGORIES --- */
+        .sticky-wrapper {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px); /* Эффект размытия фона (матовое стекло) */
+            z-index: 10;
+            padding: 10px 0;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.3s;
+        }
+        
+        /* Линия появляется только при скролле (можно добавить JS, но пока оставим чистым) */
+        .sticky-wrapper { border-bottom: 1px solid var(--border-color); }
+
+        .categories {
+            display: flex;
+            overflow-x: auto;
+            gap: 12px;
+            padding: 0 20px;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch; /* Плавный скролл на iOS */
+        }
+        .categories::-webkit-scrollbar { display: none; }
+
+        .cat-btn {
+            background: transparent;
+            border: 1px solid #e0e0e0;
+            color: var(--text-secondary);
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-size: 12px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+        }
+
+        .cat-btn.active {
+            background-color: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        /* --- PRODUCT GRID --- */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Две колонки */
+            gap: 12px; /* Отступы между карточками */
+            padding: 20px 15px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            /* Люксовый стиль: без рамок, только контент */
+            display: flex;
+            flex-direction: column;
+            opacity: 0; /* Скрыто для анимации */
+            animation: fadeUp 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+        }
+
+        .card-img-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 135%; /* Соотношение сторон 3:4 (идеально для одежды) */
+            background-color: #f2f2f2; /* Цвет плейсхолдера */
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .card-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        /* Легкое увеличение фото при нажатии */
+        .card-img-wrapper:active .card-img {
+            transform: scale(1.03);
+        }
+
+        .card-details {
+            padding: 0 2px;
+        }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 15px;
+            line-height: 1.2;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .card-price {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        /* Custom Select Styling */
+        .select-wrapper {
+            position: relative;
+            margin-bottom: 10px;
+        }
+        
+        .size-select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #e0e0e0;
+            background: #fff;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 11px;
+            border-radius: 4px;
+            appearance: none; /* Убираем стандартную стрелку */
+            color: var(--text-primary);
+        }
+
+        /* Кастомная стрелочка для селекта */
+        .select-wrapper::after {
+            content: '▼';
+            font-size: 8px;
+            color: #000;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .add-btn {
+            width: 100%;
+            padding: 12px 0;
+            background-color: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .add-btn:active {
+            background-color: var(--accent);
+            color: #fff;
+            transform: scale(0.98); /* Эффект нажатия */
+        }
+
+        /* --- CONTACT --- */
+        .contact-block {
+            margin: 20px 20px 40px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            animation: fadeIn 1s ease-out;
+        }
+        
+        .contact-link {
+            display: inline-block;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-size: 12px;
+            border: 1px solid #000;
+            padding: 10px 20px;
+            border-radius: 30px;
+            transition: 0.3s;
+        }
+
+        .contact-link:active {
+            background: #000;
+            color: #fff;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <!-- Логотип -->
+            <img src="logo.png" alt="SLIYANIE">
+        </div>
+        <div class="tagline">Luxury Femme Couture</div>
+    </header>
+
+    <!-- Прилипающие категории -->
+    <div class="sticky-wrapper">
+        <div class="categories" id="category-list">
+            <button class="cat-btn active" onclick="filterProducts('all', this)">Все</button>
+            <button class="cat-btn" onclick="filterProducts('dresses', this)">Платья</button>
+            <button class="cat-btn" onclick="filterProducts('suits', this)">Костюмы</button>
+            <button class="cat-btn" onclick="filterProducts('outerwear', this)">Верхняя одежда</button>
+            <button class="cat-btn" onclick="filterProducts('accessories', this)">Аксессуары</button>
+        </div>
+    </div>
+
+    <div class="grid" id="product-grid">
+        <!-- Товары JS -->
+    </div>
+
+    <div class="contact-block">
+        <p style="font-size: 11px; color: #888; margin-bottom: 10px;">Нужна помощь с выбором?</p>
+        <a href="https://t.me/ВАШ_НИКНЕЙМ" class="contact-link">Написать менеджеру</a>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.enableClosingConfirmation(); // Подтверждение закрытия
+
+        // Данные (Заглушки - замените ссылки на свои реальные фото)
+        const products = [
+            { id: 1, category: 'dresses', name: 'Платье Noir', price: 15900, image: 'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=500&q=80' },
+            { id: 2, category: 'suits', name: 'Костюм Boss', price: 24000, image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=500&q=80' },
+            { id: 3, category: 'dresses', name: 'Silk Combination', price: 12500, image: 'https://images.unsplash.com/photo-1612336307429-8a898d10e223?w=500&q=80' },
+            { id: 4, category: 'outerwear', name: 'Тренч Beige', price: 35000, image: 'https://images.unsplash.com/photo-1605763240004-7e93b172d754?w=500&q=80' },
+            { id: 5, category: 'suits', name: 'Жакет Oversize', price: 18000, image: 'https://images.unsplash.com/photo-1548624149-f31c2228b788?w=500&q=80' },
+            { id: 6, category: 'accessories', name: 'Сумка Leather', price: 21000, image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=500&q=80' }
+        ];
+
+        let cart = [];
+
+        // Генерация карточек с задержкой анимации
+        function renderProducts(filter = 'all') {
+            const container = document.getElementById('product-grid');
+            container.innerHTML = '';
+
+            const filtered = filter === 'all' ? products : products.filter(p => p.category === filter);
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 40px; color: #999; font-size: 12px;">В этой категории пока нет товаров</div>';
+                return;
+            }
+
+            filtered.forEach((product, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                // Каскадная анимация (каждая следующая карточка появляется чуть позже)
+                card.style.animationDelay = `${index * 0.05}s`; 
+
+                card.innerHTML = `
+                    <div class="card-img-wrapper">
+                        <img src="${product.image}" class="card-img" alt="${product.name}" loading="lazy">
+                    </div>
+                    <div class="card-details">
+                        <div class="card-title">${product.name}</div>
+                        <div class="card-price">${product.price.toLocaleString()} ₽</div>
+                        
+                        <div class="select-wrapper">
+                            <select class="size-select" id="size-${product.id}">
+                                <option value="" disabled selected>Размер</option>
+                                <option value="XS">XS</option>
+                                <option value="S">S</option>
+                                <option value="M">M</option>
+                                <option value="L">L</option>
+                            </select>
+                        </div>
+
+                        <button class="add-btn" onclick="addToCart(${product.id}, this)">В корзину</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterProducts(category, btn) {
+            // Вибрация при смене категории
+            tg.HapticFeedback.selectionChanged();
+
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Плавный скролл категорий к центру активной кнопки (для UX)
+            btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+            renderProducts(category);
+        }
+
+        function addToCart(id, btnElement) {
+            const sizeSelect = document.getElementById(`size-${id}`);
+            const size = sizeSelect.value;
+
+            if (!size) {
+                // Ошибка вибрации
+                tg.HapticFeedback.notificationOccurred('error');
+                tg.showPopup({
+                    title: 'Выберите размер',
+                    message: 'Мы хотим, чтобы вещь сидела идеально.',
+                    buttons: [{type: 'ok'}]
+                });
+                // Подсветка селекта красным на секунду
+                sizeSelect.style.borderColor = 'red';
+                setTimeout(() => sizeSelect.style.borderColor = '#e0e0e0', 1500);
+                return;
+            }
+
+            const product = products.find(p => p.id === id);
+            const existingItem = cart.find(item => item.id === id && item.size === size);
+
+            if (!existingItem) {
+                cart.push({ ...product, size: size, quantity: 1 });
+            } else {
+                existingItem.quantity += 1;
+            }
+
+            // Успешная вибрация
+            tg.HapticFeedback.notificationOccurred('success');
+
+            // Визуальное изменение кнопки
+            const originalText = btnElement.innerText;
+            btnElement.innerText = "ДОБАВЛЕНО";
+            btnElement.style.backgroundColor = "#000";
+            btnElement.style.color = "#fff";
+            
+            setTimeout(() => {
+                btnElement.innerText = originalText;
+                btnElement.style.backgroundColor = "transparent";
+                btnElement.style.color = "#000";
+            }, 1500);
+
+            updateMainButton();
+        }
+
+        function updateMainButton() {
+            if (cart.length > 0) {
+                let total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+                tg.MainButton.setText(`ОФОРМИТЬ ЗАКАЗ • ${total.toLocaleString()} ₽`);
+                if (!tg.MainButton.isVisible) {
+                    tg.MainButton.show();
+                }
+            } else {
+                tg.MainButton.hide();
+            }
+        }
+
+        tg.MainButton.setParams({
+            color: '#000000',
+            text_color: '#ffffff'
+        });
+
+        tg.MainButton.onClick(function() {
+            tg.sendData(JSON.stringify(cart)); 
+        });
+
+        // Запуск
+        renderProducts();
+
+    </script>
+</body>
+</html>
