@@ -2,414 +2,463 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <!-- Важный тег для корректного отображения на мобильных -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SLIYANIE - Luxury Femme Couture</title>
+    <title>SLIYANIE | Magazine Issue</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Подключаем "дорогие" шрифты: Cormorant Garamond (похож на шрифт Vogue) и Raleway -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Raleway:wght@300;400;500&display=swap" rel="stylesheet">
 
     <style>
         :root {
             --bg-color: #ffffff;
-            --text-primary: #000000;
-            --text-secondary: #888888;
+            --text-main: #111111;
+            --text-muted: #666666;
             --accent: #000000;
-            --card-bg: #ffffff;
-            --btn-bg: #000000;
-            --btn-text: #ffffff;
-            --border-color: #f0f0f0;
+            --font-serif: 'Cormorant Garamond', serif;
+            --font-sans: 'Raleway', sans-serif;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            -webkit-tap-highlight-color: transparent; /* Убирает синюю подсветку при тапе на Android */
-            outline: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Montserrat', sans-serif;
             background-color: var(--bg-color);
-            color: var(--text-primary);
-            padding-bottom: 90px; /* Отступ под MainButton */
-            -webkit-font-smoothing: antialiased;
+            color: var(--text-main);
+            font-family: var(--font-sans);
             overflow-x: hidden;
+            padding-bottom: 100px; /* Место под кнопку заказа */
         }
 
-        /* --- АНИМАЦИИ --- */
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* --- HEADER --- */
-        header {
-            text-align: center;
-            padding: 25px 0 15px;
-            animation: fadeIn 1s ease-out;
-        }
-
-        .logo-container {
-            width: 140px; 
-            margin: 0 auto;
+        /* --- ОБЛОЖКА (HERO SECTION) --- */
+        .magazine-cover {
             position: relative;
-        }
-
-        .logo-container img {
             width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        .tagline {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 10px;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            margin-top: 8px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        /* --- STICKY CATEGORIES --- */
-        .sticky-wrapper {
-            position: sticky;
-            top: 0;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px); /* Эффект размытия фона (матовое стекло) */
-            z-index: 10;
-            padding: 10px 0;
-            border-bottom: 1px solid transparent;
-            transition: border-color 0.3s;
-        }
-        
-        /* Линия появляется только при скролле (можно добавить JS, но пока оставим чистым) */
-        .sticky-wrapper { border-bottom: 1px solid var(--border-color); }
-
-        .categories {
-            display: flex;
-            overflow-x: auto;
-            gap: 12px;
-            padding: 0 20px;
-            scrollbar-width: none;
-            -webkit-overflow-scrolling: touch; /* Плавный скролл на iOS */
-        }
-        .categories::-webkit-scrollbar { display: none; }
-
-        .cat-btn {
-            background: transparent;
-            border: 1px solid #e0e0e0;
-            color: var(--text-secondary);
-            padding: 8px 18px;
-            border-radius: 25px;
-            font-size: 12px;
-            white-space: nowrap;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 500;
-        }
-
-        .cat-btn.active {
-            background-color: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-            transform: scale(1.05);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-        }
-
-        /* --- PRODUCT GRID --- */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr); /* Две колонки */
-            gap: 12px; /* Отступы между карточками */
-            padding: 20px 15px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            /* Люксовый стиль: без рамок, только контент */
+            height: 70vh; /* 70% высоты экрана */
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            opacity: 0; /* Скрыто для анимации */
-            animation: fadeUp 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
         }
 
-        .card-img-wrapper {
-            position: relative;
-            width: 100%;
-            padding-top: 135%; /* Соотношение сторон 3:4 (идеально для одежды) */
-            background-color: #f2f2f2; /* Цвет плейсхолдера */
-            border-radius: 6px;
-            overflow: hidden;
-            margin-bottom: 10px;
-        }
-
-        .card-img {
+        .cover-bg {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.5s ease;
+            z-index: -1;
+            opacity: 0.9;
+            /* Фильтр для черно-белого эффекта, уберите если нужны цветные */
+            filter: grayscale(100%); 
         }
 
-        /* Легкое увеличение фото при нажатии */
-        .card-img-wrapper:active .card-img {
-            transform: scale(1.03);
+        /* Затемнение фона для читаемости лого */
+        .cover-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255, 0.1); /* Легкая белая вуаль */
         }
 
-        .card-details {
-            padding: 0 2px;
+        .brand-logo-large {
+            width: 180px; /* Размер лого на обложке */
+            margin-bottom: 10px;
+            z-index: 2;
+            animation: fadeDown 1.2s ease-out;
         }
 
-        .card-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 15px;
-            line-height: 1.2;
-            margin-bottom: 4px;
-            color: var(--text-primary);
+        .issue-date {
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-size: 16px;
+            letter-spacing: 1px;
+            z-index: 2;
+            margin-top: 10px;
+            animation: fadeUp 1.2s ease-out;
+        }
+
+        /* --- БЕГУЩАЯ СТРОКА --- */
+        .marquee-container {
+            background: #000;
+            color: #fff;
+            padding: 10px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            font-family: var(--font-sans);
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 15s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* --- НАВИГАЦИЯ (Tabs) --- */
+        .nav-tabs {
+            position: sticky;
+            top: 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(5px);
+            z-index: 100;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .nav-item {
+            font-family: var(--font-serif);
+            font-size: 18px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+        }
+
+        .nav-item.active {
+            color: var(--text-main);
+            font-style: italic;
             font-weight: 600;
         }
-
-        .card-price {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 10px;
-            font-weight: 500;
+        
+        /* Подчеркивание активной вкладки */
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: #000;
         }
 
-        /* Custom Select Styling */
-        .select-wrapper {
+        /* --- ТОВАРЫ (EDITORIAL GRID) --- */
+        .editorial-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* Одна колонка для "статейного" вида */
+            gap: 40px;
+            padding: 30px 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .product-article {
+            display: flex;
+            flex-direction: column;
+            opacity: 0; /* Скрыто для анимации */
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .product-article.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .photo-frame {
             position: relative;
-            margin-bottom: 10px;
+            width: 100%;
+            aspect-ratio: 3/4; /* Вертикальный формат */
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .product-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 1.5s ease; /* Медленный зум */
+        }
+
+        /* Эффект: при нажатии фото медленно приближается */
+        .photo-frame:active .product-img {
+            transform: scale(1.1);
+        }
+
+        /* Бейдж "New" или "Exclusive" */
+        .badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #fff;
+            color: #000;
+            padding: 4px 8px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: var(--font-sans);
+        }
+
+        .product-info {
+            text-align: center; /* Центрируем текст как в журнале */
+        }
+
+        .product-category-tag {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .product-title {
+            font-family: var(--font-serif);
+            font-size: 24px; /* Крупный заголовок */
+            font-weight: 400;
+            margin-bottom: 5px;
+            line-height: 1.1;
         }
         
-        .size-select {
-            width: 100%;
-            padding: 8px 10px;
-            border: 1px solid #e0e0e0;
-            background: #fff;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 11px;
-            border-radius: 4px;
-            appearance: none; /* Убираем стандартную стрелку */
-            color: var(--text-primary);
+        .product-price {
+            font-family: var(--font-serif);
+            font-size: 18px;
+            font-style: italic;
+            margin-bottom: 15px;
         }
 
-        /* Кастомная стрелочка для селекта */
-        .select-wrapper::after {
-            content: '▼';
-            font-size: 8px;
-            color: #000;
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            pointer-events: none;
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            align-items: center;
         }
 
-        .add-btn {
-            width: 100%;
-            padding: 12px 0;
-            background-color: transparent;
-            border: 1px solid var(--accent);
-            color: var(--accent);
+        .size-select-editorial {
+            border: none;
+            border-bottom: 1px solid #000;
+            background: transparent;
+            font-family: var(--font-sans);
+            font-size: 12px;
+            padding: 5px 15px 5px 0;
+            border-radius: 0;
+            min-width: 80px;
+        }
+
+        .add-btn-editorial {
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
             font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 1px;
             cursor: pointer;
-            transition: all 0.2s;
-            border-radius: 4px;
-            font-weight: 600;
+            transition: background 0.3s;
         }
 
-        .add-btn:active {
-            background-color: var(--accent);
-            color: #fff;
-            transform: scale(0.98); /* Эффект нажатия */
+        .add-btn-editorial:active {
+            background: #333;
         }
 
-        /* --- CONTACT --- */
-        .contact-block {
-            margin: 20px 20px 40px;
+        /* --- CONTACT FOOTER --- */
+        .footer-editor {
+            margin-top: 50px;
             text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
-            animation: fadeIn 1s ease-out;
-        }
-        
-        .contact-link {
-            display: inline-block;
-            text-decoration: none;
-            color: var(--text-primary);
-            font-size: 12px;
-            border: 1px solid #000;
-            padding: 10px 20px;
-            border-radius: 30px;
-            transition: 0.3s;
+            padding: 40px 20px;
+            background: #f9f9f9;
         }
 
-        .contact-link:active {
-            background: #000;
-            color: #fff;
+        .footer-text {
+            font-family: var(--font-serif);
+            font-size: 18px;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+
+        .contact-btn {
+            text-decoration: none;
+            color: #000;
+            border: 1px solid #000;
+            padding: 10px 30px;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 2px;
+        }
+
+        /* Анимации появления */
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo-container">
-            <!-- Логотип -->
-            <img src="logo.png" alt="SLIYANIE">
+    <!-- ОБЛОЖКА (HERO) -->
+    <div class="magazine-cover">
+        <!-- Фоновая картинка для обложки (поставьте красивое вертикальное фото) -->
+        <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=1000&auto=format&fit=crop" class="cover-bg" alt="Cover">
+        <div class="cover-overlay"></div>
+        
+        <!-- ЛОГОТИП -->
+        <div class="logo-container brand-logo-large">
+            <img src="logo.jpg" alt="SLIYANIE" style="width: 100%; display: block;">
         </div>
-        <div class="tagline">Luxury Femme Couture</div>
-    </header>
+        
+        <div class="issue-date">The New Collection • 2025</div>
+    </div>
 
-    <!-- Прилипающие категории -->
-    <div class="sticky-wrapper">
-        <div class="categories" id="category-list">
-            <button class="cat-btn active" onclick="filterProducts('all', this)">Все</button>
-            <button class="cat-btn" onclick="filterProducts('dresses', this)">Платья</button>
-            <button class="cat-btn" onclick="filterProducts('suits', this)">Костюмы</button>
-            <button class="cat-btn" onclick="filterProducts('outerwear', this)">Верхняя одежда</button>
-            <button class="cat-btn" onclick="filterProducts('accessories', this)">Аксессуары</button>
+    <!-- БЕГУЩАЯ СТРОКА -->
+    <div class="marquee-container">
+        <div class="marquee-content">
+            NEW ARRIVALS &nbsp; • &nbsp; FREE SHIPPING ON ORDERS OVER 50,000 &nbsp; • &nbsp; LUXURY FEMME COUTURE &nbsp; • &nbsp; SLIYANIE &nbsp; • &nbsp; 
+            NEW ARRIVALS &nbsp; • &nbsp; FREE SHIPPING ON ORDERS OVER 50,000 &nbsp; • &nbsp; LUXURY FEMME COUTURE &nbsp; • &nbsp; SLIYANIE &nbsp; • &nbsp; 
         </div>
     </div>
 
-    <div class="grid" id="product-grid">
-        <!-- Товары JS -->
+    <!-- МЕНЮ (как рубрики журнала) -->
+    <div class="nav-tabs" id="nav-tabs">
+        <div class="nav-item active" onclick="filterProducts('all', this)">All Stories</div>
+        <div class="nav-item" onclick="filterProducts('dresses', this)">Dresses</div>
+        <div class="nav-item" onclick="filterProducts('suits', this)">Suits</div>
     </div>
 
-    <div class="contact-block">
-        <p style="font-size: 11px; color: #888; margin-bottom: 10px;">Нужна помощь с выбором?</p>
-        <a href="https://t.me/ВАШ_НИКНЕЙМ" class="contact-link">Написать менеджеру</a>
+    <!-- СЕТКА ТОВАРОВ -->
+    <div class="editorial-grid" id="product-grid">
+        <!-- Товары загружаются JS -->
+    </div>
+
+    <!-- ПОДВАЛ -->
+    <div class="footer-editor">
+        <p class="footer-text">"Style is a way to say who you are without having to speak."</p>
+        <a href="https://t.me/ВАШ_НИКНЕЙМ" class="contact-btn">Contact Stylist</a>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.enableClosingConfirmation(); // Подтверждение закрытия
 
-        // Данные (Заглушки - замените ссылки на свои реальные фото)
+        // Данные товаров (Фото подобраны более "эдиториал")
         const products = [
-            { id: 1, category: 'dresses', name: 'Платье Noir', price: 15900, image: 'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=500&q=80' },
-            { id: 2, category: 'suits', name: 'Костюм Boss', price: 24000, image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=500&q=80' },
-            { id: 3, category: 'dresses', name: 'Silk Combination', price: 12500, image: 'https://images.unsplash.com/photo-1612336307429-8a898d10e223?w=500&q=80' },
-            { id: 4, category: 'outerwear', name: 'Тренч Beige', price: 35000, image: 'https://images.unsplash.com/photo-1605763240004-7e93b172d754?w=500&q=80' },
-            { id: 5, category: 'suits', name: 'Жакет Oversize', price: 18000, image: 'https://images.unsplash.com/photo-1548624149-f31c2228b788?w=500&q=80' },
-            { id: 6, category: 'accessories', name: 'Сумка Leather', price: 21000, image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=500&q=80' }
+            { 
+                id: 1, 
+                category: 'dresses', 
+                name: 'The Black Swan', 
+                price: 15900, 
+                badge: 'Best Seller',
+                image: 'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=600&q=80' 
+            },
+            { 
+                id: 2, 
+                category: 'suits', 
+                name: 'Power Suit: Ivory', 
+                price: 24000, 
+                badge: 'New Season',
+                image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=600&q=80' 
+            },
+            { 
+                id: 3, 
+                category: 'dresses', 
+                name: 'Midnight Silk', 
+                price: 12500, 
+                badge: null,
+                image: 'https://images.unsplash.com/photo-1612336307429-8a898d10e223?w=600&q=80' 
+            },
+            { 
+                id: 4, 
+                category: 'suits', 
+                name: 'Oversized Mood', 
+                price: 18000, 
+                badge: 'Editor\'s Pick',
+                image: 'https://images.unsplash.com/photo-1548624149-f31c2228b788?w=600&q=80' 
+            }
         ];
 
         let cart = [];
 
-        // Генерация карточек с задержкой анимации
         function renderProducts(filter = 'all') {
             const container = document.getElementById('product-grid');
             container.innerHTML = '';
 
             const filtered = filter === 'all' ? products : products.filter(p => p.category === filter);
 
-            if (filtered.length === 0) {
-                container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 40px; color: #999; font-size: 12px;">В этой категории пока нет товаров</div>';
-                return;
-            }
-
             filtered.forEach((product, index) => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                // Каскадная анимация (каждая следующая карточка появляется чуть позже)
-                card.style.animationDelay = `${index * 0.05}s`; 
+                const article = document.createElement('div');
+                article.className = 'product-article';
+                
+                const badgeHtml = product.badge ? `<div class="badge">${product.badge}</div>` : '';
 
-                card.innerHTML = `
-                    <div class="card-img-wrapper">
-                        <img src="${product.image}" class="card-img" alt="${product.name}" loading="lazy">
+                article.innerHTML = `
+                    <div class="photo-frame">
+                        ${badgeHtml}
+                        <img src="${product.image}" class="product-img" loading="lazy" alt="${product.name}">
                     </div>
-                    <div class="card-details">
-                        <div class="card-title">${product.name}</div>
-                        <div class="card-price">${product.price.toLocaleString()} ₽</div>
+                    <div class="product-info">
+                        <div class="product-category-tag">${product.category}</div>
+                        <div class="product-title">${product.name}</div>
+                        <div class="product-price">${product.price.toLocaleString()} ₽</div>
                         
-                        <div class="select-wrapper">
-                            <select class="size-select" id="size-${product.id}">
-                                <option value="" disabled selected>Размер</option>
+                        <div class="controls">
+                            <select class="size-select-editorial" id="size-${product.id}">
+                                <option value="" disabled selected>Select Size</option>
                                 <option value="XS">XS</option>
                                 <option value="S">S</option>
                                 <option value="M">M</option>
                                 <option value="L">L</option>
                             </select>
+                            <button class="add-btn-editorial" onclick="addToCart(${product.id}, this)">Add to Bag</button>
                         </div>
-
-                        <button class="add-btn" onclick="addToCart(${product.id}, this)">В корзину</button>
                     </div>
                 `;
-                container.appendChild(card);
+                container.appendChild(article);
             });
+
+            // Запуск анимации появления при скролле (Intersection Observer)
+            observeArticles();
         }
 
         function filterProducts(category, btn) {
-            // Вибрация при смене категории
             tg.HapticFeedback.selectionChanged();
-
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            
-            // Плавный скролл категорий к центру активной кнопки (для UX)
-            btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-
             renderProducts(category);
         }
 
-        function addToCart(id, btnElement) {
+        function addToCart(id, btn) {
             const sizeSelect = document.getElementById(`size-${id}`);
             const size = sizeSelect.value;
 
             if (!size) {
-                // Ошибка вибрации
                 tg.HapticFeedback.notificationOccurred('error');
-                tg.showPopup({
-                    title: 'Выберите размер',
-                    message: 'Мы хотим, чтобы вещь сидела идеально.',
-                    buttons: [{type: 'ok'}]
-                });
-                // Подсветка селекта красным на секунду
-                sizeSelect.style.borderColor = 'red';
-                setTimeout(() => sizeSelect.style.borderColor = '#e0e0e0', 1500);
+                sizeSelect.style.borderBottom = "1px solid red";
+                setTimeout(() => sizeSelect.style.borderBottom = "1px solid #000", 2000);
                 return;
             }
 
             const product = products.find(p => p.id === id);
-            const existingItem = cart.find(item => item.id === id && item.size === size);
-
-            if (!existingItem) {
-                cart.push({ ...product, size: size, quantity: 1 });
-            } else {
-                existingItem.quantity += 1;
-            }
-
-            // Успешная вибрация
-            tg.HapticFeedback.notificationOccurred('success');
-
-            // Визуальное изменение кнопки
-            const originalText = btnElement.innerText;
-            btnElement.innerText = "ДОБАВЛЕНО";
-            btnElement.style.backgroundColor = "#000";
-            btnElement.style.color = "#fff";
+            const existing = cart.find(i => i.id === id && i.size === size);
             
-            setTimeout(() => {
-                btnElement.innerText = originalText;
-                btnElement.style.backgroundColor = "transparent";
-                btnElement.style.color = "#000";
-            }, 1500);
+            if(!existing) cart.push({...product, size, quantity: 1});
+            else existing.quantity++;
+
+            tg.HapticFeedback.notificationOccurred('success');
+            
+            // Красивая смена текста кнопки
+            const originalText = btn.innerText;
+            btn.innerText = "IN BAG";
+            setTimeout(() => btn.innerText = originalText, 1500);
 
             updateMainButton();
         }
@@ -417,25 +466,29 @@
         function updateMainButton() {
             if (cart.length > 0) {
                 let total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-                tg.MainButton.setText(`ОФОРМИТЬ ЗАКАЗ • ${total.toLocaleString()} ₽`);
-                if (!tg.MainButton.isVisible) {
-                    tg.MainButton.show();
-                }
+                tg.MainButton.setText(`CHECKOUT • ${total.toLocaleString()} ₽`);
+                tg.MainButton.show();
             } else {
                 tg.MainButton.hide();
             }
         }
 
-        tg.MainButton.setParams({
-            color: '#000000',
-            text_color: '#ffffff'
-        });
+        tg.MainButton.setParams({ color: '#000000', text_color: '#ffffff' });
+        tg.MainButton.onClick(() => tg.sendData(JSON.stringify(cart)));
 
-        tg.MainButton.onClick(function() {
-            tg.sendData(JSON.stringify(cart)); 
-        });
+        // Наблюдатель за скроллом (Scroll Observer) для анимации появления
+        function observeArticles() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
 
-        // Запуск
+            document.querySelectorAll('.product-article').forEach(el => observer.observe(el));
+        }
+
         renderProducts();
 
     </script>
