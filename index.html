@@ -128,7 +128,7 @@
         .marquee-content { display: inline-block; animation: marquee 20s linear infinite; }
         @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
-        /* --- TABS --- */
+        /* --- TABS (Категории) --- */
         .nav-tabs {
             position: sticky;
             top: 0;
@@ -137,10 +137,11 @@
             z-index: 100;
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 15px;
             padding: 15px 0;
             border-bottom: 1px solid #f0f0f0;
             transition: all 0.3s;
+            overflow-x: auto; /* Скролл если много категорий */
         }
 
         .nav-item {
@@ -150,6 +151,8 @@
             cursor: pointer;
             transition: 0.3s;
             position: relative;
+            white-space: nowrap;
+            padding: 0 5px;
         }
 
         .nav-item.active {
@@ -200,28 +203,17 @@
         
         .photo-frame:active .product-img { transform: scale(1.05); }
 
-        /* --- ЛОГОТИП НА ФОТО (ПРАВЫЙ ВЕРХНИЙ УГОЛ) --- */
+        /* --- ЛОГОТИП (Watermark) --- */
         .watermark {
             position: absolute;
-            
-            /* Ставим в правый верхний угол */
-            top: 10px;
-            right: 10px;
-            
-            /* Размер: 22% от ширины карточки (достаточно крупно) */
-            width: 22%; 
-            height: auto;
-            
+            top: 10px; right: 10px;
+            width: 25%; height: auto;
             z-index: 5;
-            
-            /* Убираем прозрачность, чтобы было четко видно */
             opacity: 1.0; 
-            
             pointer-events: none;
-            /* Убрали mix-blend-mode, чтобы цвета были оригинальные */
         }
 
-        /* --- BADGES --- */
+        /* --- BADGES (Бейджи) --- */
         .badge {
             position: absolute;
             top: 10px; left: 10px;
@@ -284,6 +276,7 @@
             min-width: 80px;
             appearance: none;
             color: var(--text-main);
+            text-transform: uppercase;
         }
         
         .size-select:disabled {
@@ -350,21 +343,22 @@
         <div class="brand-logo-large">
             <img src="logo.png" alt="SLIYANIE">
         </div>
-        <div class="issue-date">The New Collection</div>
+        <div class="issue-date">New Collection</div>
     </div>
 
     <div class="marquee-container">
         <div class="marquee-content">
-            NEW ARRIVALS &nbsp; • &nbsp; LUXURY FEMME COUTURE &nbsp; • &nbsp; SLIYANIE &nbsp; • &nbsp; WORLDWIDE SHIPPING &nbsp; • &nbsp;
-            NEW ARRIVALS &nbsp; • &nbsp; LUXURY FEMME COUTURE &nbsp; • &nbsp; SLIYANIE &nbsp; • &nbsp; WORLDWIDE SHIPPING &nbsp; • &nbsp;
+            НОВАЯ КОЛЛЕКЦИЯ &nbsp; • &nbsp; SLIYANIE &nbsp; • &nbsp; ДОСТАВКА ПО ВСЕМУ МИРУ &nbsp; • &nbsp; LUXURY FEMME COUTURE &nbsp; • &nbsp;
+            НОВАЯ КОЛЛЕКЦИЯ &nbsp; • &nbsp; SLIYANIE &nbsp; • &nbsp; ДОСТАВКА ПО ВСЕМУ МИРУ &nbsp; • &nbsp; LUXURY FEMME COUTURE &nbsp; • &nbsp;
         </div>
     </div>
 
+    <!-- МЕНЮ КАТЕГОРИЙ (НА РУССКОМ) -->
     <div class="nav-tabs">
-        <div class="nav-item active" onclick="filterProducts('all', this)">All</div>
-        <div class="nav-item" onclick="filterProducts('dresses', this)">Dresses</div>
-        <div class="nav-item" onclick="filterProducts('suits', this)">Suits</div>
-        <div class="nav-item" onclick="filterProducts('outerwear', this)">Outerwear</div>
+        <div class="nav-item active" onclick="filterProducts('all', this)">Все</div>
+        <div class="nav-item" onclick="filterProducts('Платья', this)">Платья</div>
+        <div class="nav-item" onclick="filterProducts('Костюмы', this)">Костюмы</div>
+        <div class="nav-item" onclick="filterProducts('Верхняя одежда', this)">Верхняя одежда</div>
     </div>
 
     <div class="editorial-grid" id="product-grid">
@@ -373,9 +367,9 @@
 
     <div class="footer-editor">
         <p style="font-family: 'Cormorant Garamond', serif; font-style: italic; margin-bottom: 20px; font-size: 18px;">
-            "Style is a way to say who you are without having to speak."
+            "Стиль — это способ сказать, кто ты, не произнося ни слова."
         </p>
-        <a href="https://t.me/ВАШ_НИКНЕЙМ" class="contact-link">Contact Manager</a>
+        <a href="https://t.me/ВАШ_НИКНЕЙМ" class="contact-link">СВЯЗАТЬСЯ С МЕНЕДЖЕРОМ</a>
     </div>
 
     <script>
@@ -383,7 +377,7 @@
         tg.expand();
         tg.enableClosingConfirmation();
 
-        // Ссылка уже вставлена
+        // Ваша ссылка на Google Apps Script
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyFHqJpvqsVICG7V6mYWxvAdWGOJnZtizMrGSbhIaTNoWaL_AoArdmR4ELfT4BM-Uk5/exec'; 
 
         let allProducts = [];
@@ -394,8 +388,36 @@
                 const response = await fetch(GOOGLE_SCRIPT_URL);
                 if (!response.ok) throw new Error("Ошибка доступа");
 
-                const data = await response.json();
-                allProducts = data;
+                const rawData = await response.json();
+                
+                // ОБРАБОТКА ДАННЫХ: Парсим размеры и считаем количество
+                allProducts = rawData.map(p => {
+                    let totalQty = 0;
+                    let parsedSizes = [];
+
+                    // Если размеры пришли как массив (из старого кода), превращаем в строку
+                    let sizesStr = Array.isArray(p.sizes) ? p.sizes.join(',') : p.sizes;
+                    
+                    if (sizesStr) {
+                        // Разбираем строку вида "S:10, M:5"
+                        // Если просто "S,M", считаем что их по 99 шт.
+                        const parts = sizesStr.split(',');
+                        parts.forEach(part => {
+                            let [sizeName, qtyStr] = part.split(':');
+                            sizeName = sizeName.trim();
+                            let qty = qtyStr ? parseInt(qtyStr.trim()) : 999; // Если число не указано, считаем что много
+
+                            totalQty += qty;
+                            parsedSizes.push({ name: sizeName, qty: qty });
+                        });
+                    }
+
+                    return {
+                        ...p,
+                        parsedSizes: parsedSizes,
+                        totalQuantity: totalQty
+                    };
+                });
                 
                 const preloader = document.getElementById('preloader');
                 preloader.style.opacity = '0';
@@ -407,7 +429,7 @@
                 document.getElementById('preloader').innerHTML = `
                     <div class="error-msg">
                         Ошибка загрузки!<br>
-                        Проверь доступ к скрипту (нужно "Anyone").
+                        Проверьте доступ к скрипту и подключение.
                     </div>`;
             }
         }
@@ -419,34 +441,44 @@
             const filtered = filter === 'all' ? allProducts : allProducts.filter(p => p.category === filter);
 
             if (filtered.length === 0) {
-                container.innerHTML = '<div style="text-align:center; padding:40px; font-style:italic; color:#999;">В этой категории пока нет товаров.</div>';
+                container.innerHTML = '<div style="text-align:center; padding:40px; font-style:italic; color:#999;">В этой категории пока пусто.</div>';
                 return;
             }
 
             filtered.forEach((product) => {
                 let badgeHtml = '';
-                let btnText = 'Add to Bag';
+                let btnText = 'В КОРЗИНУ';
                 let btnDisabled = false;
                 let imgStyle = '';
 
-                if (product.quantity <= 0) {
-                    badgeHtml = `<div class="badge sold-out">SOLD OUT</div>`;
-                    btnText = 'Sold Out';
+                // Проверяем ОБЩЕЕ количество товара
+                if (product.totalQuantity <= 0) {
+                    badgeHtml = `<div class="badge sold-out">ПРОДАНО</div>`;
+                    btnText = 'ПРОДАНО';
                     btnDisabled = true;
                     imgStyle = 'opacity: 0.6; filter: grayscale(100%);';
                 } 
-                else if (product.quantity < 5) {
-                    badgeHtml = `<div class="badge alert">Last Items</div>`;
+                else if (product.totalQuantity < 5) {
+                    badgeHtml = `<div class="badge alert">ОСТАЛОСЬ МАЛО</div>`;
                 } 
                 else if (product.badge) {
                     badgeHtml = `<div class="badge">${product.badge}</div>`;
                 }
 
-                let sizeOptions = '<option value="" disabled selected>Size</option>';
-                if(product.sizes && product.sizes.length > 0) {
-                    product.sizes.forEach(s => sizeOptions += `<option value="${s}">${s}</option>`);
+                // Генерируем список размеров с проверкой наличия
+                let sizeOptions = '<option value="" disabled selected>РАЗМЕР</option>';
+                
+                if (product.parsedSizes && product.parsedSizes.length > 0) {
+                    product.parsedSizes.forEach(s => {
+                        if (s.qty > 0) {
+                            sizeOptions += `<option value="${s.name}">${s.name}</option>`;
+                        } else {
+                            // Если размера нет, показываем, но нельзя выбрать
+                            sizeOptions += `<option value="${s.name}" disabled>${s.name} (Нет)</option>`;
+                        }
+                    });
                 } else {
-                    sizeOptions = '<option value="ONE">One Size</option>';
+                    sizeOptions = '<option value="ONE">ONE SIZE</option>';
                 }
 
                 const article = document.createElement('div');
@@ -455,10 +487,7 @@
                 article.innerHTML = `
                     <div class="photo-frame">
                         ${badgeHtml}
-                        
-                        <!-- ЛОГОТИП: Правый верхний угол, без прозрачности -->
                         <img src="logo.png" class="watermark" alt=""> 
-                        
                         <img src="${product.image}" class="product-img" style="${imgStyle}" loading="lazy" alt="${product.name}">
                     </div>
                     <div class="product-info">
@@ -504,18 +533,32 @@
             }
 
             const product = allProducts.find(p => p.id === id);
-            const existingItem = cart.find(item => item.id === id && item.size === size);
+            
+            // Находим выбранный размер, чтобы проверить остаток
+            const sizeObj = product.parsedSizes.find(s => s.name === size);
+            const currentInCart = cart.find(item => item.id === id && item.size === size);
+            const qtyInCart = currentInCart ? currentInCart.quantity : 0;
 
-            if (!existingItem) {
+            // Проверка: не пытаемся ли мы купить больше, чем есть в наличии
+            if (sizeObj && (qtyInCart + 1) > sizeObj.qty) {
+                tg.showPopup({
+                    title: 'Увы!',
+                    message: `Доступно всего ${sizeObj.qty} шт. размера ${size}`,
+                    buttons: [{type: 'ok'}]
+                });
+                return;
+            }
+
+            if (!currentInCart) {
                 cart.push({ ...product, size: size, quantity: 1 });
             } else {
-                existingItem.quantity += 1;
+                currentInCart.quantity += 1;
             }
 
             tg.HapticFeedback.notificationOccurred('success');
             
             const originalText = btnElement.innerText;
-            btnElement.innerText = "IN BAG";
+            btnElement.innerText = "В КОРЗИНЕ";
             btnElement.style.backgroundColor = "#333";
             setTimeout(() => {
                 btnElement.innerText = originalText;
@@ -528,7 +571,7 @@
         function updateMainButton() {
             if (cart.length > 0) {
                 let total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-                tg.MainButton.setText(`CHECKOUT • ${total.toLocaleString()} ₽`);
+                tg.MainButton.setText(`ОФОРМИТЬ • ${total.toLocaleString()} ₽`);
                 if (!tg.MainButton.isVisible) tg.MainButton.show();
             } else {
                 tg.MainButton.hide();
@@ -537,7 +580,18 @@
 
         tg.MainButton.setParams({ color: '#000000', text_color: '#ffffff' });
         tg.MainButton.onClick(function() {
-            tg.sendData(JSON.stringify(cart));
+            // Отправляем данные боту
+            // Форматируем для менеджера
+            const orderData = cart.map(i => {
+                return {
+                    id: i.id,
+                    name: i.name,
+                    price: i.price,
+                    size: i.size,
+                    qty: i.quantity
+                }
+            });
+            tg.sendData(JSON.stringify(orderData));
         });
 
         function observeArticles() {
