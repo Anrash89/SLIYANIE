@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     <style>
-        /* --- ОРИГИНАЛЬНЫЕ СТИЛИ (V1) --- */
+        /* --- СТИЛИ --- */
         :root {
             --bg-color: #ffffff;
             --text-main: #111111;
@@ -30,11 +30,11 @@
             color: var(--text-main);
             font-family: var(--font-sans);
             overflow-x: hidden;
-            padding-bottom: 80px; /* Место под фиксированную кнопку */
+            padding-bottom: 80px;
             min-height: 100vh;
         }
 
-        /* --- PRELOADER (ВЕРНУЛ СТАРЫЙ КРАСИВЫЙ) --- */
+        /* PRELOADER */
         #preloader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #fff; z-index: 9999;
@@ -53,15 +53,14 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
 
-        /* --- СИСТЕМА ЭКРАНОВ (SPA - НОВОЕ) --- */
+        /* ЭКРАНЫ */
         .page { display: none; opacity: 0; animation: fadeIn 0.4s forwards; }
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- АДАПТИВНЫЙ КОНТЕЙНЕР (НОВОЕ) --- */
         .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
 
-        /* --- HERO SECTION (ВЕРНУЛ СТАРЫЙ БАННЕР) --- */
+        /* ОБЛОЖКА */
         .magazine-cover {
             position: relative; width: 100%; height: 60vh; overflow: hidden;
             display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
@@ -80,7 +79,7 @@
             z-index: 2; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.3); animation: fadeUp 1.2s ease-out;
         }
 
-        /* --- MARQUEE (ВЕРНУЛ БЕГУЩУЮ СТРОКУ) --- */
+        /* БЕГУЩАЯ СТРОКА */
         .marquee-container {
             background: #000; color: #fff; padding: 8px 0; overflow: hidden; white-space: nowrap;
             font-family: var(--font-sans); font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
@@ -88,7 +87,7 @@
         .marquee-content { display: inline-block; animation: marquee 20s linear infinite; }
         @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
-        /* --- HEADER ДЛЯ ВНУТРЕННИХ СТРАНИЦ (НОВОЕ) --- */
+        /* ШАПКА ВНУТРЕННЯЯ */
         .inner-header {
             position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95);
             backdrop-filter: blur(10px); border-bottom: 1px solid #f0f0f0; padding: 15px 0;
@@ -97,7 +96,7 @@
         .back-link { cursor: pointer; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 5px;}
         .header-title { font-family: var(--font-serif); font-size: 18px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* --- TABS (ВЕРНУЛ СТАРЫЙ СТИЛЬ) --- */
+        /* ТАБЫ */
         .nav-tabs {
             position: sticky; top: 0; background: rgba(255,255,255,0.96); backdrop-filter: blur(8px);
             z-index: 90; display: flex; justify-content: center; gap: 20px; padding: 15px 0;
@@ -112,7 +111,7 @@
             content: ''; position: absolute; bottom: -4px; left: 0; width: 100%; height: 1px; background: #000;
         }
         
-        /* --- ИКОНКА КОРЗИНЫ (НОВОЕ, НО В СТАРОМ СТИЛЕ) --- */
+        /* КОРЗИНА ИКОНКА */
         .floating-cart {
             position: fixed; top: 15px; right: 15px; z-index: 110;
             background: rgba(255,255,255,0.9); backdrop-filter: blur(5px);
@@ -125,12 +124,11 @@
         }
         .cart-count.show { opacity: 1; }
 
-        /* --- PRODUCT GRID (ВЕРНУЛ СТАРЫЙ СТИЛЬ КАРТОЧЕК + АДАПТИВ) --- */
+        /* СЕТКА ТОВАРОВ */
         .editorial-grid {
             display: grid; grid-template-columns: repeat(1, 1fr); gap: 40px;
             padding: 30px 20px; max-width: 600px; margin: 0 auto;
         }
-        /* АДАПТИВ ДЛЯ ПК (НОВОЕ) */
         @media (min-width: 768px) {
             .editorial-grid { grid-template-columns: repeat(3, 1fr); max-width: 1200px; gap: 30px; }
         }
@@ -150,7 +148,7 @@
         .product-title { font-family: var(--font-serif); font-size: 22px; margin-bottom: 5px; line-height: 1.1; }
         .product-price { font-family: var(--font-serif); font-size: 18px; font-style: italic; margin-bottom: 15px; color: #333; }
 
-        /* --- СТРАНИЦА ТОВАРА (НОВОЕ, НО СО СТАРЫМИ ШРИФТАМИ) --- */
+        /* СТРАНИЦА ТОВАРА */
         .detail-layout { display: grid; gap: 20px; padding: 20px 0; }
         @media (min-width: 768px) { .detail-layout { grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; } }
 
@@ -169,7 +167,7 @@
         .size-option.selected { border-color: #000; background: #000; color: #fff; }
         .size-option.disabled { opacity: 0.4; pointer-events: none; text-decoration: line-through; border-color: #eee; }
 
-        /* --- КНОПКА КУПИТЬ И КОРЗИНА (НОВОЕ) --- */
+        /* UI ЭЛЕМЕНТЫ */
         .sticky-action {
             position: fixed; bottom: 0; left: 0; width: 100%;
             background: #fff; padding: 15px 20px 25px; border-top: 1px solid #f0f0f0; z-index: 90;
@@ -228,14 +226,13 @@
             <div class="nav-item" onclick="filterBy('Верхняя одежда', this)">Верхняя</div>
         </div>
 
-        <div class="editorial-grid" id="grid">
-            </div>
+        <div class="editorial-grid" id="grid"></div>
 
         <div style="text-align: center; padding: 40px 20px; background: #f9f9f9; margin-top: 30px;">
             <p style="font-family: var(--font-serif); font-style: italic; margin-bottom: 20px; font-size: 18px;">
                 "Стиль — это способ сказать, кто ты, не произнося ни слова."
             </p>
-            <a href="https://t.me/YOUR_USERNAME" style="text-decoration: none; color: #000; border-bottom: 1px solid #000; font-size: 11px; text-transform: uppercase; letter-spacing: 2px;">Связаться с менеджером</a>
+            <a href="#" style="text-decoration: none; color: #000; border-bottom: 1px solid #000; font-size: 11px; text-transform: uppercase; letter-spacing: 2px;">Связаться с менеджером</a>
         </div>
     </div>
 
@@ -247,7 +244,8 @@
                     НАЗАД
                 </div>
                 <div class="header-title">SLIYANIE</div>
-                <div style="width: 24px;"></div> </div>
+                <div style="width: 24px;"></div>
+            </div>
         </div>
         <div id="product-content"></div>
     </div>
@@ -293,6 +291,8 @@
         async function init() {
             try {
                 tg.BackButton.onClick(goBack);
+                
+                // Навигация по истории браузера
                 window.addEventListener('popstate', (event) => {
                     if (event.state && event.state.page) {
                         showPage(event.state.page, false);
@@ -301,6 +301,7 @@
                     }
                 });
                 history.replaceState({page: 'page-main'}, '', '');
+                
                 updateCartCounter();
                 
                 const res = await fetch(API_URL);
@@ -326,17 +327,18 @@
                 });
 
                 renderGrid('all');
-                // Скрываем красивый прелоадер
+                
                 const preloader = document.getElementById('preloader');
                 preloader.style.opacity = '0';
                 preloader.style.visibility = 'hidden';
 
             } catch(e) {
-                document.getElementById('preloader').innerHTML = '<div style="color:red; padding:20px;">Ошибка загрузки. Обновите страницу.</div>';
+                console.error(e);
+                document.getElementById('preloader').innerHTML = '<div style="color:red; padding:20px;">Ошибка загрузки.<br>Проверьте интернет.</div>';
             }
         }
 
-        // --- НАВИГАЦИЯ ---
+        // --- ЛОГИКА ---
         function navigateTo(pageId) {
             history.pushState({page: pageId}, '', '');
             showPage(pageId, true);
@@ -353,7 +355,6 @@
             if (pageId === 'page-main') { tg.BackButton.hide(); } else { tg.BackButton.show(); }
         }
 
-        // --- ГЛАВНАЯ СТРАНИЦА (РЕНДЕР В СТАРОМ СТИЛЕ) ---
         function renderGrid(cat) {
             const grid = document.getElementById('grid');
             grid.innerHTML = '';
@@ -385,7 +386,6 @@
             renderGrid(cat);
         }
 
-        // --- СТРАНИЦА ТОВАРА ---
         function openProduct(id) {
             currentProduct = catalog.find(p => p.id === id);
             if(!currentProduct) return;
@@ -405,7 +405,7 @@
             container.innerHTML = `
                 <div class="container detail-layout">
                     <div class="gallery">${imagesHtml}</div>
-                    <div class="info-block">
+                    <div class="product-info" style="text-align:left;">
                         <div class="detail-title">${currentProduct.name}</div>
                         <div class="detail-price">${parseInt(currentProduct.price).toLocaleString()} ₽</div>
                         <div class="detail-desc">${currentProduct.description || 'Описание отсутствует.'}</div>
@@ -431,7 +431,8 @@
             if(!selectedSize) {
                 tg.HapticFeedback.notificationOccurred('error');
                 const btn = document.getElementById('addBtn');
-                btn.innerText = "ВЫБЕРИТЕ РАЗМЕР!"; btn.style.background = var(--alert-color);
+                btn.innerText = "ВЫБЕРИТЕ РАЗМЕР!"; 
+                btn.style.background = "#9e0b0b"; // ИСПРАВЛЕННАЯ СТРОКА
                 setTimeout(() => { btn.innerText = "В КОРЗИНУ"; btn.style.background = "#000"; }, 1000);
                 return;
             }
@@ -448,7 +449,6 @@
             setTimeout(() => { btn.innerText = `В КОРЗИНУ (${selectedSize})`; btn.style.background = "#000"; }, 1000);
         }
 
-        // --- КОРЗИНА ---
         function goToCart() { navigateTo('page-cart'); renderCart(); }
 
         function renderCart() {
