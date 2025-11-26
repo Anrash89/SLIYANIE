@@ -28,7 +28,6 @@
             color: var(--text-main);
             font-family: var(--font-sans);
             overflow-x: hidden;
-            /* Важно: общий отступ снизу не спасает фикс. элементы, но нужен для скролла */
             padding-bottom: 20px; 
             min-height: 100vh;
         }
@@ -62,7 +61,7 @@
         /* Кнопка купить */
         .sticky-action {
             position: fixed; bottom: 0; left: 0; width: 100%;
-            background: #fff; padding: 15px 20px 30px; /* 30px снизу для iPhone полоски */
+            background: #fff; padding: 15px 20px 30px; 
             border-top: 1px solid #f0f0f0; z-index: 100;
             box-shadow: 0 -5px 15px rgba(0,0,0,0.03);
         }
@@ -137,7 +136,7 @@
         .product-title { font-family: var(--font-serif); font-size: 22px; margin-bottom: 5px; line-height: 1.1; }
         .product-price { font-family: var(--font-serif); font-size: 18px; font-style: italic; color: #555; }
 
-        /* --- ДЕТАЛЬНАЯ СТРАНИЦА (ИСПРАВЛЕНИЯ) --- */
+        /* --- ДЕТАЛЬНАЯ СТРАНИЦА --- */
         .inner-header {
             position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95);
             backdrop-filter: blur(10px); border-bottom: 1px solid #f0f0f0; padding: 15px 0;
@@ -145,20 +144,18 @@
         .header-flex { display: flex; justify-content: space-between; align-items: center; }
         .back-link { cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 5px; text-transform: uppercase; letter-spacing: 1px;}
         
-        /* КОНТЕЙНЕР ДЕТАЛЕЙ */
         .detail-columns {
-            /* Важно: padding-bottom 120px чтобы кнопка не перекрывала контент на мобильном */
             padding-bottom: 120px; 
         }
 
-        /* ГАЛЕРЕЯ МОБИЛЬНАЯ */
+        /* ГАЛЕРЕЯ */
         .gallery-container { position: relative; width: 100%; margin-bottom: 20px; }
         
         .gallery-wrapper {
             display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
             scrollbar-width: none; -webkit-overflow-scrolling: touch;
             background: #f4f4f4; 
-            height: 55vh; /* Чуть меньше, чтобы было видно текст снизу */
+            height: 55vh; 
         }
         .gallery-wrapper::-webkit-scrollbar { display: none; }
         
@@ -167,7 +164,7 @@
         }
         .gallery-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-        /* Точки навигации */
+        /* Точки */
         .gallery-dots {
             position: absolute; bottom: 15px; left: 0; width: 100%;
             display: flex; justify-content: center; gap: 8px; z-index: 10;
@@ -178,24 +175,20 @@
         }
         .gallery-dot.active { background: #fff; transform: scale(1.2); }
 
-        /* СТИЛЬ ДЛЯ ПК */
+        /* ПК СТИЛЬ */
         @media (min-width: 768px) {
             .detail-columns {
                 display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 50px; align-items: start; padding-top: 30px;
-                padding-bottom: 50px; /* На ПК кнопка не мешает так сильно */
+                padding-bottom: 50px; 
             }
             .gallery-wrapper {
                 height: auto; 
                 display: grid; 
-                /* Умная сетка на ПК: 2 колонки */
                 grid-template-columns: repeat(2, 1fr); 
                 gap: 15px;
-                overflow: visible;
-                scroll-snap-type: none;
+                overflow: visible; scroll-snap-type: none;
             }
-            /* Если фото одно - растягиваем */
             .gallery-wrapper.single-img { grid-template-columns: 1fr; }
-            
             .gallery-slide { flex: auto; height: auto; aspect-ratio: 3/4; cursor: pointer;}
             .gallery-dots { display: none; } 
         }
@@ -208,7 +201,7 @@
         /* РАЗМЕРЫ */
         .sizes-grid { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px; margin-top: 15px;}
         .size-option {
-            border: 1px solid #ddd; padding: 15px 25px; /* Увеличил кнопки */
+            border: 1px solid #ddd; padding: 15px 25px;
             font-size: 14px; font-weight: 500; 
             cursor: pointer; transition: 0.2s; text-transform: uppercase;
             min-width: 60px; text-align: center;
@@ -280,8 +273,7 @@
             </div>
         </div>
         
-        <div class="container" id="product-content">
-            </div>
+        <div class="container" id="product-content"></div>
     </div>
 
     <div id="page-cart" class="page">
@@ -337,7 +329,7 @@
                 const rawData = await res.json();
                 
                 catalog = rawData.map(p => {
-                    // Парсинг размеров
+                    // Размеры
                     let sizes = [];
                     if(p.sizes) {
                         let str = Array.isArray(p.sizes) ? p.sizes.join(',') : p.sizes;
@@ -347,14 +339,26 @@
                         });
                     } else { sizes.push({name: 'ONE', qty: 999}); }
 
-                    // Парсинг Фото
+                    // --- ФОТО (УЛУЧШЕННЫЙ ПАРСИНГ) ---
                     let images = [];
+                    
+                    // 1. Главное фото
                     if (p.image) images.push(p.image.trim());
+                    
+                    // 2. Дополнительные фото (УМНАЯ ПРОВЕРКА)
                     if(p.additional_images) {
-                        let extras = p.additional_images.toString().split(',').map(url => url.trim()).filter(url => url.length > 5);
+                        // Делим по запятой, точке с запятой или переносу строки
+                        let extras = String(p.additional_images)
+                            .split(/[,;\n]+/) 
+                            .map(url => url.trim())
+                            .filter(url => url.length > 5); // Фильтр пустых
+                        
                         images = images.concat(extras);
                     }
-                    images = images.slice(0, 4); // Берем до 4 фото
+                    
+                    // Если доп фото нет, оставляем только главное
+                    // Если есть - берем первые 4
+                    images = images.slice(0, 4); 
 
                     return { ...p, sizes, images, totalQty: sizes.reduce((a,b)=>a+b.qty, 0) };
                 });
@@ -386,7 +390,7 @@
             if (pageId === 'page-main') tg.BackButton.hide(); else tg.BackButton.show();
         }
 
-        // --- MAIN GRID ---
+        // --- GRID ---
         function renderGrid(cat) {
             const grid = document.getElementById('grid');
             grid.innerHTML = '';
@@ -418,7 +422,7 @@
             renderGrid(cat);
         }
 
-        // --- PRODUCT DETAILS ---
+        // --- DETAILS ---
         function openProduct(id) {
             currentProduct = catalog.find(p => p.id === id);
             if(!currentProduct) return;
@@ -427,19 +431,19 @@
             
             const container = document.getElementById('product-content');
             
-            // Слайды
+            // СЛАЙДЕР
             const slidesHtml = currentProduct.images.map(src => 
                 `<div class="gallery-slide"><img src="${src}"></div>`
             ).join('');
 
-            // Точки
+            // ТОЧКИ
             const dotsHtml = currentProduct.images.length > 1 
                 ? `<div class="gallery-dots">
                     ${currentProduct.images.map((_,i) => `<div class="gallery-dot ${i===0?'active':''}" id="dot-${i}"></div>`).join('')}
                    </div>` 
                 : '';
 
-            // Размеры
+            // РАЗМЕРЫ
             const sizesHtml = currentProduct.sizes.map(s => {
                 const disabled = s.qty <= 0 ? 'disabled' : '';
                 return `<div class="size-option ${disabled}" onclick="selectSize('${s.name}', this)">${s.name}</div>`;
@@ -447,8 +451,6 @@
 
             const btnText = currentProduct.totalQty > 0 ? 'В КОРЗИНУ' : 'ПРОДАНО';
             const btnDisabled = currentProduct.totalQty <= 0;
-            
-            // Класс для сетки на ПК (одно фото или сетка)
             const gridClass = currentProduct.images.length === 1 ? 'single-img' : '';
 
             container.innerHTML = `
@@ -480,7 +482,7 @@
         }
 
         function onGalleryScroll(el) {
-            if (window.innerWidth >= 768) return; // На ПК скролл не нужен
+            if (window.innerWidth >= 768) return; 
             const index = Math.round(el.scrollLeft / el.offsetWidth);
             document.querySelectorAll('.gallery-dot').forEach((d, i) => {
                 if(i === index) d.classList.add('active'); else d.classList.remove('active');
@@ -512,7 +514,7 @@
                 id: currentProduct.id, 
                 name: currentProduct.name, 
                 price: currentProduct.price, 
-                image: currentProduct.image[0], // В корзину кладем только первое фото
+                image: currentProduct.image[0], 
                 size: selectedSize, 
                 qty: 1, 
                 maxQty: sizeObj.qty 
