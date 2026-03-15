@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Слияние — Админ-панель</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --burg:#7A1230; --burg-l:#A63250; --burg-d:#5A0D22;
+  --cream:#FAF5EE; --cream-d:#F0E8DC;
+  --dark:#1A0F0A; --sidebar:#1E1210; --sidebar-l:#2A1A14;
+  --mid:#6B4C3B; --taupe:#B89880; --blush:#E8C4C4;
+  --white:#FFFFFF;
+  --green:#2D6A4F; --green-l:#52B788;
+  --amber:#B5451B; --amber-l:#E07A5F;
+  --blue:#1B4F72; --blue-l:#5B8DB8;
+  --shadow:rgba(122,18,48,0.15);
+  --border:rgba(184,152,128,0.2);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Montserrat',sans-serif;background:#F5EFE8;color:var(--dark);min-height:100vh;display:flex}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--taupe);border-radius:3px}
+
+/* ═══ LOGIN SCREEN ═══ */
+.login-screen{
+  position:fixed;inset:0;background:var(--dark);
+  display:flex;align-items:center;justify-content:center;
+  z-index:1000;
+  animation:none;
+}
+.login-screen.hide{animation:fadeOut .5s forwards}
+@keyframes fadeOut{to{opacity:0;pointer-events:none}}
+.login-box{
+  background:var(--sidebar);border:1px solid rgba(255,255,255,.08);
+  padding:52px 44px;width:min(400px,90vw);text-align:center;
+  animation:slideUp .6s cubic-bezier(.4,0,.2,1) forwards;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.login-logo{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;
+  letter-spacing:6px;color:var(--cream);text-transform:uppercase;margin-bottom:6px}
+.login-sub{font-size:9px;letter-spacing:3px;color:var(--taupe);text-transform:uppercase;margin-bottom:40px}
+.login-field{margin-bottom:16px;text-align:left}
+.login-field label{display:block;font-size:9px;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(255,255,255,.4);margin-bottom:7px}
+.login-field input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+  color:var(--cream);padding:12px 16px;font-family:'Montserrat',sans-serif;font-size:13px;outline:none;
+  transition:border-color .3s}
+.login-field input:focus{border-color:var(--burg)}
+.login-btn{width:100%;background:var(--burg);color:#fff;border:none;
+  padding:14px;font-family:'Montserrat',sans-serif;font-size:10px;
+  letter-spacing:3px;text-transform:uppercase;cursor:pointer;
+  margin-top:8px;transition:background .3s}
+.login-btn:hover{background:var(--burg-l)}
+.login-hint{font-size:10px;color:rgba(255,255,255,.25);margin-top:18px;letter-spacing:.5px}
+
+/* ═══ SIDEBAR ═══ */
+.sidebar{
+  width:240px;min-width:240px;background:var(--sidebar);
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+  transition:width .3s;z-index:50;
+}
+.sidebar.collapsed{width:68px;min-width:68px}
+.sb-brand{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.07);
+  display:flex;align-items:center;gap:12px}
+.sb-logo{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:400;
+  letter-spacing:3px;color:var(--cream);text-transform:uppercase;white-space:nowrap;
+  overflow:hidden;transition:opacity .2s}
+.sidebar.collapsed .sb-logo{opacity:0;width:0}
+.sb-icon-logo{width:28px;height:28px;flex-shrink:0;color:var(--burg)}
+.sb-nav{flex:1;padding:16px 0}
+.sb-section{font-size:8px;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(255,255,255,.25);padding:16px 20px 8px;white-space:nowrap;overflow:hidden}
+.sidebar.collapsed .sb-section{opacity:0}
+.sb-item{display:flex;align-items:center;gap:14px;padding:11px 20px;
+  cursor:pointer;transition:all .25s;position:relative;color:rgba(255,255,255,.55);
+  text-decoration:none;border-left:2px solid transparent;white-space:nowrap}
+.sb-item:hover{background:var(--sidebar-l);color:var(--cream)}
+.sb-item.active{background:var(--sidebar-l);color:var(--cream);border-left-color:var(--burg)}
+.sb-item svg{width:17px;height:17px;flex-shrink:0}
+.sb-item span{font-size:11px;letter-spacing:1px;overflow:hidden;transition:opacity .2s}
+.sidebar.collapsed .sb-item span{opacity:0;width:0}
+.sb-badge{margin-left:auto;background:var(--burg);color:#fff;font-size:8px;
+  width:18px;height:18px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-weight:600;flex-shrink:0}
+.sidebar.collapsed .sb-badge{display:none}
+.sb-footer{padding:16px;border-top:1px solid rgba(255,255,255,.07)}
+.sb-collapse{display:flex;align-items:center;gap:12px;cursor:pointer;
+  color:rgba(255,255,255,.4);font-size:10px;letter-spacing:1px;
+  padding:8px;transition:color .3s}
+.sb-collapse:hover{color:var(--cream)}
+.sb-collapse svg{width:16px;height:16px;flex-shrink:0;transition:transform .3s}
+.sidebar.collapsed .sb-collapse svg{transform:rotate(180deg)}
+.sidebar.collapsed .sb-collapse span{opacity:0;width:0;overflow:hidden}
+
+/* ═══ MAIN ═══ */
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{background:#fff;border-bottom:1px solid var(--border);
+  padding:0 28px;height:62px;display:flex;align-items:center;
+  justify-content:space-between;position:sticky;top:0;z-index:40}
+.topbar-title{font-family:'Cormorant Garamond',serif;font-size:22px;
+  font-weight:400;color:var(--dark);letter-spacing:1px}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.tb-btn{background:none;border:1px solid var(--border);padding:7px 16px;
+  font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;
+  font-family:'Montserrat',sans-serif;color:var(--mid);transition:all .3s}
+.tb-btn:hover{border-color:var(--burg);color:var(--burg)}
+.tb-btn.primary{background:var(--burg);border-color:var(--burg);color:#fff}
+.tb-btn.primary:hover{background:var(--burg-l)}
+.tb-avatar{width:34px;height:34px;background:var(--burg);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',serif;font-size:15px;color:#fff;cursor:pointer}
+.content{flex:1;padding:28px;overflow-y:auto}
+
+/* ═══ PAGES ═══ */
+.page{display:none;animation:fadeIn .3s ease-out}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══ DASHBOARD ═══ */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+@media(max-width:1100px){.stats-row{grid-template-columns:repeat(2,1fr)}}
+.stat-card{background:#fff;padding:22px 24px;border-left:3px solid var(--burg);
+  transition:transform .3s,box-shadow .3s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px var(--shadow)}
+.stat-label{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--taupe);margin-bottom:8px}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:400;
+  color:var(--dark);line-height:1}
+.stat-sub{font-size:10px;color:var(--mid);margin-top:5px}
+.stat-card.green{border-left-color:var(--green)}
+.stat-card.amber{border-left-color:var(--amber)}
+.stat-card.blue{border-left-color:var(--blue)}
+.dash-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:16px}
+@media(max-width:1000px){.dash-grid{grid-template-columns:1fr}}
+.card{background:#fff;padding:24px}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:400;
+  color:var(--dark);margin-bottom:18px;letter-spacing:.5px;
+  display:flex;align-items:center;justify-content:space-between}
+.card-title a{font-size:9px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--burg);text-decoration:none;font-family:'Montserrat',sans-serif}
+
+/* orders in dashboard */
+.ord-row{display:flex;align-items:center;gap:12px;padding:10px 0;
+  border-bottom:1px solid var(--border);font-size:12px}
+.ord-row:last-child{border-bottom:none}
+.ord-id{font-weight:500;color:var(--dark);min-width:55px}
+.ord-name{flex:1;color:var(--mid)}
+.ord-amount{font-weight:500;color:var(--burg);min-width:70px;text-align:right}
+.ord-status{font-size:9px;letter-spacing:1px;text-transform:uppercase;
+  padding:3px 9px;font-weight:600}
+.os-new{background:rgba(122,18,48,.1);color:var(--burg)}
+.os-done{background:rgba(45,106,79,.1);color:var(--green)}
+.os-pending{background:rgba(181,69,27,.1);color:var(--amber)}
+
+/* low stock */
+.stock-row{display:flex;align-items:center;justify-content:space-between;
+  padding:9px 0;border-bottom:1px solid var(--border);font-size:12px}
+.stock-row:last-child{border-bottom:none}
+.stock-name{color:var(--dark);font-weight:500}
+.stock-left{display:flex;align-items:center;gap:8px}
+.stock-num{font-size:11px;font-weight:600}
+.stock-num.red{color:var(--amber)}
+.stock-num.ok{color:var(--green)}
+.stock-bar{width:60px;height:4px;background:var(--cream-d);border-radius:2px;overflow:hidden}
+.stock-fill{height:100%;border-radius:2px;transition:width .5s}
+.sf-red{background:var(--amber-l)}
+.sf-ok{background:var(--green-l)}
+
+/* ═══ TABLE ═══ */
+.table-wrap{background:#fff;overflow:hidden}
+.tbar{display:flex;align-items:center;gap:12px;padding:16px 20px;
+  border-bottom:1px solid var(--border);flex-wrap:wrap}
+.search-inp{flex:1;min-width:160px;border:1px solid var(--border);background:var(--cream);
+  padding:9px 14px;font-size:12px;font-family:'Montserrat',sans-serif;
+  color:var(--dark);outline:none;transition:border-color .3s}
+.search-inp:focus{border-color:var(--burg)}
+.tfilter{border:1px solid var(--border);background:transparent;padding:9px 12px;
+  font-size:10px;letter-spacing:1px;color:var(--mid);
+  font-family:'Montserrat',sans-serif;cursor:pointer;outline:none}
+table{width:100%;border-collapse:collapse}
+thead th{font-size:9px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--taupe);padding:12px 16px;text-align:left;
+  background:var(--cream);border-bottom:1px solid var(--border);
+  white-space:nowrap;cursor:pointer;user-select:none}
+thead th:hover{color:var(--burg)}
+tbody tr{border-bottom:1px solid var(--border);transition:background .2s}
+tbody tr:hover{background:#FDFAF7}
+tbody tr:last-child{border-bottom:none}
+td{padding:12px 16px;font-size:12px;vertical-align:middle}
+.td-img{width:44px;height:56px;object-fit:cover;cursor:pointer}
+.td-img-ph{width:44px;height:56px;display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;cursor:pointer}
+.td-name{font-weight:500;color:var(--dark)}
+.td-cat{font-size:10px;color:var(--taupe);letter-spacing:1px;text-transform:uppercase}
+.td-price{font-weight:500;color:var(--burg)}
+.td-old{font-size:11px;color:var(--taupe);text-decoration:line-through;margin-left:4px}
+.td-actions{display:flex;gap:6px;white-space:nowrap}
+.act-btn{background:none;border:1px solid var(--border);padding:5px 12px;
+  font-size:9px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;
+  font-family:'Montserrat',sans-serif;color:var(--mid);transition:all .2s}
+.act-btn:hover{border-color:var(--burg);color:var(--burg)}
+.act-btn.danger:hover{border-color:var(--amber);color:var(--amber)}
+.badge-new{background:rgba(44,24,16,.08);color:var(--dark);
+  font-size:8px;letter-spacing:1.5px;text-transform:uppercase;
+  padding:2px 8px;font-weight:600}
+.badge-sale{background:rgba(122,18,48,.1);color:var(--burg);
+  font-size:8px;letter-spacing:1.5px;text-transform:uppercase;
+  padding:2px 8px;font-weight:600}
+.stock-badge{display:inline-flex;align-items:center;gap:5px;
+  font-size:11px;font-weight:500}
+.stock-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot-green{background:var(--green-l)} .dot-red{background:var(--amber-l)}
+.dot-yellow{background:#F4A261}
+.pagination{display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;border-top:1px solid var(--border)}
+.pag-info{font-size:11px;color:var(--taupe);letter-spacing:.5px}
+.pag-btns{display:flex;gap:4px}
+.pag-btn{background:none;border:1px solid var(--border);width:30px;height:30px;
+  cursor:pointer;font-size:11px;color:var(--mid);transition:all .2s;
+  display:flex;align-items:center;justify-content:center}
+.pag-btn:hover,.pag-btn.active{background:var(--burg);border-color:var(--burg);color:#fff}
+
+/* ═══ MODAL ═══ */
+.modal-ov{position:fixed;inset:0;background:rgba(26,15,10,.55);z-index:200;
+  opacity:0;pointer-events:none;transition:opacity .3s}
+.modal-ov.on{opacity:1;pointer-events:all}
+.modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-60%);
+  width:min(680px,96vw);max-height:90vh;overflow-y:auto;
+  background:#fff;z-index:201;opacity:0;pointer-events:none;
+  transition:all .35s cubic-bezier(.4,0,.2,1)}
+.modal.on{opacity:1;pointer-events:all;transform:translate(-50%,-50%)}
+.modal-hd{padding:22px 24px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;
+  color:var(--dark);letter-spacing:1px}
+.modal-x{background:none;border:none;cursor:pointer;color:var(--mid);
+  width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;transition:all .2s;font-size:18px}
+.modal-x:hover{background:var(--cream-d);color:var(--burg)}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);
+  display:flex;justify-content:flex-end;gap:10px}
+
+/* ═══ FORM ═══ */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-full{grid-column:1/-1}
+.f-group{display:flex;flex-direction:column;gap:6px}
+.f-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--mid);font-weight:500}
+.f-input{border:1px solid var(--border);background:var(--cream);
+  padding:10px 14px;font-size:12px;font-family:'Montserrat',sans-serif;
+  color:var(--dark);outline:none;transition:border-color .3s;width:100%}
+.f-input:focus{border-color:var(--burg);background:#fff}
+.f-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23B89880' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:34px}
+.f-textarea{resize:vertical;min-height:80px}
+.f-hint{font-size:10px;color:var(--taupe);letter-spacing:.3px}
+.color-picker-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.color-swatch{width:26px;height:26px;border-radius:50%;cursor:pointer;
+  border:2px solid transparent;transition:all .2s;flex-shrink:0;position:relative}
+.color-swatch.active{outline:2px solid var(--dark);outline-offset:2px}
+.color-swatch .del{position:absolute;top:-4px;right:-4px;width:14px;height:14px;
+  background:var(--amber);border-radius:50%;display:none;align-items:center;
+  justify-content:center;font-size:8px;color:#fff;cursor:pointer}
+.color-swatch:hover .del{display:flex}
+.add-color-btn{width:26px;height:26px;border:1.5px dashed var(--taupe);
+  background:none;cursor:pointer;border-radius:50%;display:flex;
+  align-items:center;justify-content:center;color:var(--taupe);font-size:16px;
+  transition:all .3s}
+.add-color-btn:hover{border-color:var(--burg);color:var(--burg)}
+.size-check-row{display:flex;gap:8px;flex-wrap:wrap}
+.size-check{display:none}
+.size-lbl{border:1px solid var(--border);padding:6px 12px;font-size:11px;
+  cursor:pointer;transition:all .2s;user-select:none;color:var(--mid)}
+.size-check:checked + .size-lbl{background:var(--burg);border-color:var(--burg);color:#fff}
+
+/* PHOTO UPLOAD */
+.photo-upload{border:2px dashed var(--border);padding:32px;text-align:center;
+  cursor:pointer;transition:all .3s;position:relative}
+.photo-upload:hover{border-color:var(--burg);background:rgba(122,18,48,.02)}
+.photo-upload input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.photo-upload svg{color:var(--taupe);margin-bottom:10px}
+.photo-upload p{font-size:11px;color:var(--taupe);letter-spacing:.5px}
+.photo-upload strong{color:var(--burg)}
+.photo-previews{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.photo-prev{position:relative;width:70px;height:88px}
+.photo-prev img{width:100%;height:100%;object-fit:cover}
+.photo-prev .rm-photo{position:absolute;top:-6px;right:-6px;width:18px;height:18px;
+  background:var(--amber);border:none;border-radius:50%;cursor:pointer;
+  color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center}
+
+/* ═══ CATEGORIES ═══ */
+.cat-admin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+@media(max-width:900px){.cat-admin-grid{grid-template-columns:repeat(2,1fr)}}
+.cat-admin-card{background:#fff;padding:20px;display:flex;align-items:center;
+  justify-content:space-between;border-left:3px solid var(--taupe);
+  transition:all .3s;cursor:default}
+.cat-admin-card:hover{border-left-color:var(--burg);transform:translateX(2px)}
+.can-name{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:400;color:var(--dark)}
+.can-count{font-size:10px;color:var(--taupe);letter-spacing:1px;text-transform:uppercase;margin-top:3px}
+.can-acts{display:flex;gap:6px}
+
+/* ═══ ORDERS ═══ */
+.order-status-tabs{display:flex;gap:0;margin-bottom:20px;border:1px solid var(--border);background:#fff;width:fit-content}
+.ost{padding:10px 20px;font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  cursor:pointer;color:var(--mid);transition:all .3s;border:none;background:none;
+  font-family:'Montserrat',sans-serif}
+.ost.active{background:var(--burg);color:#fff}
+
+/* ═══ SETTINGS ═══ */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:800px){.settings-grid{grid-template-columns:1fr}}
+.settings-card{background:#fff;padding:24px}
+.settings-title{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:400;
+  color:var(--dark);margin-bottom:20px;padding-bottom:12px;
+  border-bottom:1px solid var(--border)}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 0;border-bottom:1px solid var(--border)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-label{font-size:12px;color:var(--dark)}
+.toggle-sub{font-size:10px;color:var(--taupe);margin-top:2px}
+.toggle{position:relative;width:38px;height:20px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle-sl{position:absolute;inset:0;background:var(--border);border-radius:20px;
+  cursor:pointer;transition:background .3s}
+.toggle-sl::before{content:'';position:absolute;width:14px;height:14px;
+  background:#fff;border-radius:50%;top:3px;left:3px;transition:transform .3s}
+.toggle input:checked + .toggle-sl{background:var(--burg)}
+.toggle input:checked + .toggle-sl::before{transform:translateX(18px)}
+
+/* ═══ TOAST ═══ */
+.toast{position:fixed;bottom:24px;right:24px;z-index:500;
+  background:var(--dark);color:#fff;padding:12px 20px;
+  font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
+  transform:translateY(80px);opacity:0;transition:all .35s cubic-bezier(.4,0,.2,1);
+  display:flex;align-items:center;gap:10px}
+.toast.on{transform:translateY(0);opacity:1}
+.toast.success{background:var(--green)}
+.toast.error{background:var(--amber)}
+.toast-icon{width:16px;height:16px;flex-shrink:0}
+
+/* ═══ MISC ═══ */
+.section-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;
+  color:var(--dark);letter-spacing:1px;margin-bottom:20px}
+.section-title em{font-style:italic;color:var(--burg)}
+.empty-msg{text-align:center;padding:50px 20px;color:var(--taupe)}
+.empty-msg svg{width:48px;height:48px;opacity:.3;margin-bottom:12px}
+.empty-msg p{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300}
+.divider{height:1px;background:var(--border);margin:20px 0}
+.confirm-dialog{background:#fff;padding:28px;max-width:380px;margin:0 auto;text-align:center}
+.confirm-dialog p{font-size:13px;color:var(--mid);margin-bottom:20px;line-height:1.6}
+.confirm-btns{display:flex;gap:10px;justify-content:center}
+
+@media(max-width:768px){
+  .sidebar{position:fixed;height:100%;transform:translateX(-100%);transition:transform .3s}
+  .sidebar.mob-open{transform:translateX(0)}
+  .form-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">Слияние</div>
+    <div class="login-sub">Панель управления</div>
+    <div class="login-field">
+      <label>Логин</label>
+      <input type="text" id="loginUser" value="admin" placeholder="admin">
+    </div>
+    <div class="login-field">
+      <label>Пароль</label>
+      <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Войти</button>
+    <p class="login-hint">логин: admin · пароль: sliyanie2026</p>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-brand">
+    <svg class="sb-icon-logo" viewBox="0 0 28 28" fill="none">
+      <path d="M14 2C14 2 4 8 4 16C4 21.52 8.48 26 14 26C19.52 26 24 21.52 24 16C24 8 14 2 14 2Z" fill="none" stroke="currentColor" stroke-width="1.3"/>
+      <path d="M14 7C14 7 8 12 8 16C8 19.31 10.69 22 14 22C17.31 22 20 19.31 20 16C20 12 14 7 14 7Z" fill="currentColor" opacity="0.25"/>
+    </svg>
+    <span class="sb-logo">Слияние</span>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-section">Главная</div>
+    <a class="sb-item active" onclick="showPage('dashboard',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <span>Дашборд</span>
+    </a>
+
+    <div class="sb-section">Каталог</div>
+    <a class="sb-item" onclick="showPage('products',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+      <span>Товары</span>
+    </a>
+    <a class="sb-item" onclick="showPage('categories',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg>
+      <span>Категории</span>
+    </a>
+    <a class="sb-item" onclick="showPage('inventory',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span>Остатки</span>
+      <span class="sb-badge" id="lowStockBadge">0</span>
+    </a>
+
+    <div class="sb-section">Продажи</div>
+    <a class="sb-item" onclick="showPage('orders',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <span>Заказы</span>
+      <span class="sb-badge" id="newOrdersBadge">3</span>
+    </a>
+
+    <div class="sb-section">Система</div>
+    <a class="sb-item" onclick="showPage('settings',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span>Настройки</span>
+    </a>
+    <a class="sb-item" href="index.html" target="_blank">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      <span>Открыть сайт</span>
+    </a>
+  </nav>
+  <div class="sb-footer">
+    <div class="sb-collapse" onclick="toggleSidebar()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 18 9 12 15 6"/></svg>
+      <span>Свернуть</span>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbarTitle">Дашборд</div>
+    <div class="topbar-right">
+      <button class="tb-btn primary" id="topAddBtn" onclick="openAddProduct()" style="display:none">+ Добавить товар</button>
+      <button class="tb-btn" id="topCatBtn" onclick="openAddCategory()" style="display:none">+ Категория</button>
+      <a href="index.html" target="_blank" class="tb-btn">↗ Сайт</a>
+      <div class="tb-avatar" title="Администратор">А</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ═══ DASHBOARD ═══ -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Товаров в каталоге</div>
+          <div class="stat-val" id="statProducts">12</div>
+          <div class="stat-sub">В 5 категориях</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Заказов за месяц</div>
+          <div class="stat-val">47</div>
+          <div class="stat-sub">↑ 12% к прошлому</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-label">Выручка за месяц</div>
+          <div class="stat-val">284 тыс</div>
+          <div class="stat-sub">↑ 8% к прошлому</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">Мало на складе</div>
+          <div class="stat-val" id="statLow">3</div>
+          <div class="stat-sub">Требуют пополнения</div>
+        </div>
+      </div>
+      <div class="dash-grid">
+        <div class="card">
+          <div class="card-title">Последние заказы <a onclick="showPage('orders',document.querySelector('[onclick*=orders]'))">Все →</a></div>
+          <div id="dashOrders"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Мало на складе <a onclick="showPage('inventory',document.querySelector('[onclick*=inventory]'))">Все →</a></div>
+          <div id="dashStock"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PRODUCTS ═══ -->
+    <div class="page" id="page-products">
+      <div class="table-wrap">
+        <div class="tbar">
+          <input class="search-inp" placeholder="Поиск товара..." oninput="filterProducts(this.value)" id="prodSearch">
+          <select class="tfilter" onchange="filterProductsCat(this.value)">
+            <option value="">Все категории</option>
+            <option>Платья</option><option>Блузки</option><option>Юбки</option>
+            <option>Пальто</option><option>Костюмы</option>
+          </select>
+          <select class="tfilter" onchange="filterProductsBadge(this.value)">
+            <option value="">Все метки</option>
+            <option value="new">Новинки</option>
+            <option value="sale">Скидки</option>
+          </select>
+        </div>
+        <div style="overflow-x:auto">
+        <table id="productsTable">
+          <thead>
+            <tr>
+              <th>Фото</th>
+              <th onclick="sortTable('name')">Название ↕</th>
+              <th onclick="sortTable('cat')">Категория ↕</th>
+              <th onclick="sortTable('price')">Цена ↕</th>
+              <th>Остаток</th>
+              <th>Метка</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody id="productsBody"></tbody>
+        </table>
+        </div>
+        <div class="pagination">
+          <span class="pag-info" id="pagInfo"></span>
+          <div class="pag-btns" id="pagBtns"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ CATEGORIES ═══ -->
+    <div class="page" id="page-categories">
+      <div class="cat-admin-grid" id="catGrid"></div>
+      <div class="table-wrap">
+        <div class="tbar"><span style="font-size:11px;color:var(--taupe);letter-spacing:1px">РАСПРЕДЕЛЕНИЕ ТОВАРОВ ПО КАТЕГОРИЯМ</span></div>
+        <table><thead><tr><th>Категория</th><th>Товаров</th><th>Средняя цена</th><th>На складе</th><th>Действия</th></tr></thead>
+        <tbody id="catTableBody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- ═══ INVENTORY ═══ -->
+    <div class="page" id="page-inventory">
+      <div class="table-wrap">
+        <div class="tbar">
+          <input class="search-inp" placeholder="Поиск..." oninput="filterInventory(this.value)">
+          <select class="tfilter" onchange="filterInventoryStatus(this.value)">
+            <option value="">Все</option>
+            <option value="low">Мало (< 5)</option>
+            <option value="ok">В норме</option>
+            <option value="out">Нет в наличии</option>
+          </select>
+        </div>
+        <div style="overflow-x:auto">
+        <table><thead><tr>
+          <th>Фото</th><th>Товар</th><th>Категория</th>
+          <th>XS</th><th>S</th><th>M</th><th>L</th><th>XL</th>
+          <th>Всего</th><th>Статус</th><th>Изменить</th>
+        </tr></thead>
+        <tbody id="inventoryBody"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ORDERS ═══ -->
+    <div class="page" id="page-orders">
+      <div class="order-status-tabs">
+        <button class="ost active" onclick="filterOrders('all',this)">Все</button>
+        <button class="ost" onclick="filterOrders('new',this)">Новые</button>
+        <button class="ost" onclick="filterOrders('processing',this)">В обработке</button>
+        <button class="ost" onclick="filterOrders('done',this)">Выполнены</button>
+        <button class="ost" onclick="filterOrders('cancelled',this)">Отменены</button>
+      </div>
+      <div class="table-wrap">
+        <div style="overflow-x:auto">
+        <table><thead><tr>
+          <th>№ Заказа</th><th>Клиент</th><th>Товары</th>
+          <th>Сумма</th><th>Дата</th><th>Статус</th><th>Действия</th>
+        </tr></thead>
+        <tbody id="ordersBody"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SETTINGS ═══ -->
+    <div class="page" id="page-settings">
+      <div class="settings-grid">
+        <div class="settings-card">
+          <div class="settings-title">Магазин</div>
+          <div class="f-group" style="margin-bottom:14px">
+            <label class="f-label">Название</label>
+            <input class="f-input" value="Слияние">
+          </div>
+          <div class="f-group" style="margin-bottom:14px">
+            <label class="f-label">Адрес</label>
+            <input class="f-input" value="Новосибирск, Советская 18">
+          </div>
+          <div class="f-group" style="margin-bottom:14px">
+            <label class="f-label">Телефон</label>
+            <input class="f-input" value="+7 (383) 345-67-89">
+          </div>
+          <div class="f-group" style="margin-bottom:20px">
+            <label class="f-label">Email</label>
+            <input class="f-input" value="hello@sliyanie.ru">
+          </div>
+          <button class="tb-btn primary" onclick="showToast('Сохранено','success')">Сохранить</button>
+        </div>
+        <div class="settings-card">
+          <div class="settings-title">Уведомления</div>
+          <div class="toggle-row">
+            <div><div class="toggle-label">Новые заказы</div><div class="toggle-sub">Email при каждом заказе</div></div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-sl"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div><div class="toggle-label">Мало на складе</div><div class="toggle-sub">Остаток менее 5 штук</div></div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-sl"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div><div class="toggle-label">Отмена заказов</div><div class="toggle-sub">При каждой отмене</div></div>
+            <label class="toggle"><input type="checkbox"><span class="toggle-sl"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div><div class="toggle-label">Еженедельный отчёт</div><div class="toggle-sub">Каждый понедельник</div></div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-sl"></span></label>
+          </div>
+        </div>
+        <div class="settings-card">
+          <div class="settings-title">Доставка</div>
+          <div class="f-group" style="margin-bottom:14px">
+            <label class="f-label">Бесплатная от (₽)</label>
+            <input class="f-input" type="number" value="5000">
+          </div>
+          <div class="f-group" style="margin-bottom:14px">
+            <label class="f-label">Стоимость доставки (₽)</label>
+            <input class="f-input" type="number" value="350">
+          </div>
+          <div class="toggle-row">
+            <div><div class="toggle-label">Самовывоз</div><div class="toggle-sub">Советская 18</div></div>
+            <label class="toggle"><input type="checkbox" checked><span class="toggle-sl"></span></label>
+          </div>
+          <div style="margin-top:16px">
+            <button class="tb-btn primary" onclick="showToast('Сохранено','success')">Сохранить</button>
+          </div>
+        </div>
+        <div class="settings-card">
+          <div class="settings-title">Аккаунт</div>
+          <div class="f-group" style="margin-bottom:14px">
+            <label class="f-label">Логин</label>
+            <input class="f-input" value="admin">
+          </div>
+          <div class="f-group" style="margin-bottom:14px">
+            <label class="f-label">Новый пароль</label>
+            <input class="f-input" type="password" placeholder="••••••••">
+          </div>
+          <div class="f-group" style="margin-bottom:20px">
+            <label class="f-label">Повторите пароль</label>
+            <input class="f-input" type="password" placeholder="••••••••">
+          </div>
+          <button class="tb-btn primary" onclick="showToast('Пароль изменён','success')">Сохранить</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ═══ PRODUCT MODAL ═══ -->
+<div class="modal-ov" id="prodModalOv" onclick="closeProdModal()"></div>
+<div class="modal" id="prodModal">
+  <div class="modal-hd">
+    <h2 class="modal-title" id="prodModalTitle">Новый товар</h2>
+    <button class="modal-x" onclick="closeProdModal()">×</button>
+  </div>
+  <div class="modal-body">
+    <input type="hidden" id="editId">
+    <div class="form-grid">
+      <div class="f-group form-full">
+        <label class="f-label">Фотографии товара</label>
+        <div class="photo-upload" id="photoUploadArea">
+          <input type="file" accept="image/*" multiple onchange="handlePhotos(this)">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <p>Перетащите фото или <strong>нажмите для выбора</strong></p>
+          <p style="font-size:10px;margin-top:4px">PNG, JPG до 5MB · первое фото — главное</p>
+        </div>
+        <div class="photo-previews" id="photoPreviews"></div>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Название товара *</label>
+        <input class="f-input" id="fName" placeholder="Платье «Сакура»">
+      </div>
+      <div class="f-group">
+        <label class="f-label">Категория *</label>
+        <select class="f-input f-select" id="fCat">
+          <option>Платья</option><option>Блузки</option><option>Юбки</option>
+          <option>Пальто</option><option>Костюмы</option>
+        </select>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Цена (₽) *</label>
+        <input class="f-input" id="fPrice" type="number" placeholder="8900">
+      </div>
+      <div class="f-group">
+        <label class="f-label">Старая цена (₽)</label>
+        <input class="f-input" id="fOld" type="number" placeholder="Оставьте пустым">
+        <span class="f-hint">Заполните для отображения скидки</span>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Материал</label>
+        <input class="f-input" id="fMat" placeholder="Шёлк 100%">
+      </div>
+      <div class="f-group">
+        <label class="f-label">Метка</label>
+        <select class="f-input f-select" id="fBadge">
+          <option value="">Без метки</option>
+          <option value="new">Новинка</option>
+          <option value="sale">Скидка</option>
+        </select>
+      </div>
+      <div class="f-group form-full">
+        <label class="f-label">Описание</label>
+        <textarea class="f-input f-textarea" id="fDesc" placeholder="Описание товара..."></textarea>
+      </div>
+      <div class="f-group form-full">
+        <label class="f-label">Размеры</label>
+        <div class="size-check-row">
+          <input type="checkbox" class="size-check" id="sXS" value="XS"><label class="size-lbl" for="sXS">XS</label>
+          <input type="checkbox" class="size-check" id="sS"  value="S"> <label class="size-lbl" for="sS">S</label>
+          <input type="checkbox" class="size-check" id="sM"  value="M"> <label class="size-lbl" for="sM">M</label>
+          <input type="checkbox" class="size-check" id="sL"  value="L"> <label class="size-lbl" for="sL">L</label>
+          <input type="checkbox" class="size-check" id="sXL" value="XL"><label class="size-lbl" for="sXL">XL</label>
+          <input type="checkbox" class="size-check" id="sXXL" value="XXL"><label class="size-lbl" for="sXXL">XXL</label>
+        </div>
+      </div>
+      <div class="f-group form-full">
+        <label class="f-label">Цвета</label>
+        <div class="color-picker-row" id="colorPicker">
+          <button class="add-color-btn" onclick="addColor()" type="button">+</button>
+        </div>
+        <input type="hidden" id="colorInput">
+      </div>
+      <div class="f-group">
+        <label class="f-label">Остаток (шт)</label>
+        <input class="f-input" id="fStock" type="number" value="10" placeholder="10">
+      </div>
+      <div class="f-group">
+        <label class="f-label">Артикул</label>
+        <input class="f-input" id="fSku" placeholder="SL-001">
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="tb-btn" onclick="closeProdModal()">Отмена</button>
+    <button class="tb-btn primary" onclick="saveProduct()">Сохранить товар</button>
+  </div>
+</div>
+
+<!-- STOCK MODAL -->
+<div class="modal-ov" id="stockModalOv" onclick="closeStockModal()"></div>
+<div class="modal" id="stockModal" style="max-width:440px">
+  <div class="modal-hd">
+    <h2 class="modal-title" id="stockModalTitle">Остатки</h2>
+    <button class="modal-x" onclick="closeStockModal()">×</button>
+  </div>
+  <div class="modal-body" id="stockModalBody"></div>
+  <div class="modal-footer">
+    <button class="tb-btn" onclick="closeStockModal()">Отмена</button>
+    <button class="tb-btn primary" onclick="saveStock()">Сохранить</button>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-ov" id="confirmOv" onclick="closeConfirm()"></div>
+<div class="modal" id="confirmModal" style="max-width:400px">
+  <div class="modal-body">
+    <div class="confirm-dialog">
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="1.5" style="margin:0 auto 16px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <p id="confirmText">Вы уверены?</p>
+      <div class="confirm-btns">
+        <button class="tb-btn" onclick="closeConfirm()">Отмена</button>
+        <button class="tb-btn" id="confirmYes" style="border-color:var(--amber);color:var(--amber)">Удалить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORY MODAL -->
+<div class="modal-ov" id="catModalOv" onclick="closeCatModal()"></div>
+<div class="modal" id="catModal" style="max-width:420px">
+  <div class="modal-hd">
+    <h2 class="modal-title">Категория</h2>
+    <button class="modal-x" onclick="closeCatModal()">×</button>
+  </div>
+  <div class="modal-body">
+    <div class="f-group" style="margin-bottom:14px">
+      <label class="f-label">Название категории *</label>
+      <input class="f-input" id="catName" placeholder="Платья">
+    </div>
+    <div class="f-group">
+      <label class="f-label">Описание</label>
+      <input class="f-input" id="catDesc" placeholder="Краткое описание">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="tb-btn" onclick="closeCatModal()">Отмена</button>
+    <button class="tb-btn primary" onclick="saveCategory()">Сохранить</button>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toastMsg"></span>
+</div>
+
+<script>
+/* ════ STATE ════ */
+const DEFAULT_PRODUCTS = [
+  {id:1,name:"Платье «Сакура»",cat:"Платья",price:8900,old:null,mat:"Шёлк 100%",badge:"new",colors:["#C8A878","#8B5E52"],sizes:["XS","S","M","L","XL"],bg:"linear-gradient(150deg,#E0C8C0,#9B6E6E)",desc:"Лёгкое шёлковое платье.",stock:{XS:8,S:12,M:10,L:7,XL:3},sku:"SL-001",photo:null},
+  {id:2,name:"Блузка «Роса»",cat:"Блузки",price:4200,old:5800,mat:"Лён 100%",badge:"sale",colors:["#FAF5EE","#D4B8B0"],sizes:["XS","S","M","L"],bg:"linear-gradient(150deg,#D4C4B0,#8B7860)",desc:"Воздушная льняная блузка.",stock:{XS:15,S:18,M:12,L:4,XL:0},sku:"SL-002",photo:null},
+  {id:3,name:"Юбка «Ива»",cat:"Юбки",price:5600,old:null,mat:"Вискоза 80%",badge:null,colors:["#7A1230","#2C1810"],sizes:["XS","S","M","L","XL"],bg:"linear-gradient(150deg,#B8A090,#6B4C3B)",desc:"Юбка-миди.",stock:{XS:6,S:10,M:14,L:9,XL:2},sku:"SL-003",photo:null},
+  {id:4,name:"Пальто «Туман»",cat:"Пальто",price:18900,old:24000,mat:"Шерсть 90%",badge:"sale",colors:["#C4A882","#8B7060"],sizes:["S","M","L","XL"],bg:"linear-gradient(150deg,#C4A882,#7A6058)",desc:"Классическое пальто.",stock:{XS:0,S:3,M:6,L:5,XL:2},sku:"SL-004",photo:null},
+  {id:5,name:"Платье «Цветение»",cat:"Платья",price:12400,old:null,mat:"Шёлк 100%",badge:"new",colors:["#E8C4C4","#7A1230"],sizes:["XS","S","M","L","XL","XXL"],bg:"linear-gradient(150deg,#DCC0B8,#9B6E6E)",desc:"Вечернее платье.",stock:{XS:5,S:8,M:11,L:7,XL:3,XXL:1},sku:"SL-005",photo:null},
+  {id:6,name:"Блузка «Утренняя»",cat:"Блузки",price:3800,old:null,mat:"Хлопок 100%",badge:null,colors:["#FAF5EE","#E8C4C4"],sizes:["XS","S","M","L"],bg:"linear-gradient(150deg,#E8D8D0,#B07868)",desc:"Романтичная блузка.",stock:{XS:20,S:25,M:18,L:10,XL:0},sku:"SL-006",photo:null},
+  {id:7,name:"Костюм «Гармония»",cat:"Костюмы",price:22000,old:27000,mat:"Лён, шёлк",badge:"sale",colors:["#C4A882","#2C1810"],sizes:["XS","S","M","L","XL"],bg:"linear-gradient(150deg,#C8B4A8,#8B7068)",desc:"Брючный костюм.",stock:{XS:4,S:6,M:8,L:5,XL:2},sku:"SL-007",photo:null},
+  {id:8,name:"Юбка «Перо»",cat:"Юбки",price:6800,old:null,mat:"Вискоза 100%",badge:"new",colors:["#FAF5EE","#C4A882"],sizes:["XS","S","M","L"],bg:"linear-gradient(150deg,#E0C8C0,#9B6E6E)",desc:"Пышная юбка.",stock:{XS:9,S:13,M:11,L:6,XL:0},sku:"SL-008",photo:null},
+  {id:9,name:"Пальто «Иней»",cat:"Пальто",price:21500,old:null,mat:"Кашемир 80%",badge:"new",colors:["#F0E8DC","#7A1230"],sizes:["XS","S","M","L","XL"],bg:"linear-gradient(150deg,#DDD0C8,#9B8880)",desc:"Кашемировое пальто.",stock:{XS:3,S:5,M:7,L:4,XL:1},sku:"SL-009",photo:null},
+  {id:10,name:"Платье «Нежность»",cat:"Платья",price:9600,old:12000,mat:"Шифон 100%",badge:"sale",colors:["#E8C4C4","#C4A882"],sizes:["XS","S","M","L"],bg:"linear-gradient(150deg,#ECD8D0,#B09088)",desc:"Шифоновое платье.",stock:{XS:7,S:9,M:12,L:6,XL:0},sku:"SL-010",photo:null},
+  {id:11,name:"Жакет «Сад»",cat:"Костюмы",price:14200,old:null,mat:"Лён 100%",badge:null,colors:["#C4A882","#8B5E52"],sizes:["XS","S","M","L","XL"],bg:"linear-gradient(150deg,#C0B0A0,#806050)",desc:"Льняной жакет.",stock:{XS:6,S:8,M:10,L:7,XL:3},sku:"SL-011",photo:null},
+  {id:12,name:"Блузка «Заря»",cat:"Блузки",price:4800,old:6200,mat:"Шёлк 70%",badge:"sale",colors:["#E8C4C4","#C4A882"],sizes:["XS","S","M","L","XL"],bg:"linear-gradient(150deg,#E0C8B8,#A08070)",desc:"Шёлковая блузка.",stock:{XS:11,S:14,M:10,L:8,XL:2},sku:"SL-012",photo:null}
+];
+
+const ORDERS = [
+  {id:'#1042',name:'Анна М.',items:'Платье «Сакура» (M)',amount:8900,date:'16.03.2026',status:'new'},
+  {id:'#1041',name:'Мария К.',items:'Пальто «Туман» (L)',amount:18900,date:'15.03.2026',status:'processing'},
+  {id:'#1040',name:'Елена В.',items:'Юбка «Ива» (S), Блузка «Роса» (S)',amount:9800,date:'15.03.2026',status:'done'},
+  {id:'#1039',name:'Ольга Р.',items:'Костюм «Гармония» (M)',amount:22000,date:'14.03.2026',status:'done'},
+  {id:'#1038',name:'Светлана Т.',items:'Платье «Нежность» (XS)',amount:9600,date:'14.03.2026',status:'new'},
+  {id:'#1037',name:'Наталья С.',items:'Блузка «Заря» (L)',amount:4800,date:'13.03.2026',status:'processing'},
+  {id:'#1036',name:'Ирина Д.',items:'Жакет «Сад» (M)',amount:14200,date:'13.03.2026',status:'done'},
+  {id:'#1035',name:'Татьяна П.',items:'Платье «Цветение» (S)',amount:12400,date:'12.03.2026',status:'cancelled'},
+];
+
+const CATS_DEFAULT = ['Платья','Блузки','Юбки','Пальто','Костюмы'];
+
+let products = JSON.parse(localStorage.getItem('sl_products') || 'null') || DEFAULT_PRODUCTS;
+let categories = JSON.parse(localStorage.getItem('sl_cats') || 'null') || CATS_DEFAULT;
+let editColors = [];
+let currentPage = 1;
+let prodFilter = {q:'',cat:'',badge:''};
+let orderFilter = 'all';
+let editStockId = null;
+
+function save(){localStorage.setItem('sl_products',JSON.stringify(products));localStorage.setItem('sl_cats',JSON.stringify(categories));}
+
+/* ════ LOGIN ════ */
+function doLogin(){
+  const u=document.getElementById('loginUser').value;
+  const p=document.getElementById('loginPass').value;
+  if(u==='admin'&&p==='sliyanie2026'){
+    document.getElementById('loginScreen').classList.add('hide');
+    setTimeout(()=>document.getElementById('loginScreen').remove(),600);
+    initAll();
+  } else {showToast('Неверный логин или пароль','error');}
+}
+
+/* ════ SIDEBAR ════ */
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('collapsed');}
+function showPage(id, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+  const titles={dashboard:'Дашборд',products:'Товары',categories:'Категории',inventory:'Остатки',orders:'Заказы',settings:'Настройки'};
+  document.getElementById('topbarTitle').textContent = titles[id]||id;
+  document.getElementById('topAddBtn').style.display = id==='products'?'block':'none';
+  document.getElementById('topCatBtn').style.display = id==='categories'?'block':'none';
+  if(id==='products') renderProducts();
+  if(id==='categories') renderCategories();
+  if(id==='inventory') renderInventory();
+  if(id==='orders') renderOrders();
+}
+
+/* ════ DASHBOARD ════ */
+function renderDashboard(){
+  document.getElementById('statProducts').textContent = products.length;
+  const low = products.filter(p=>totalStock(p)<5).length;
+  document.getElementById('statLow').textContent = low;
+  document.getElementById('lowStockBadge').textContent = low;
+  document.getElementById('newOrdersBadge').textContent = ORDERS.filter(o=>o.status==='new').length;
+  // orders
+  const el=document.getElementById('dashOrders');
+  el.innerHTML = ORDERS.slice(0,5).map(o=>`
+    <div class="ord-row">
+      <span class="ord-id">${o.id}</span>
+      <span class="ord-name">${o.name}</span>
+      <span class="ord-amount">${o.amount.toLocaleString('ru')} ₽</span>
+      <span class="ord-status ${statusClass(o.status)}">${statusLabel(o.status)}</span>
+    </div>`).join('');
+  // low stock
+  const ls = products.filter(p=>totalStock(p)<10).sort((a,b)=>totalStock(a)-totalStock(b)).slice(0,6);
+  document.getElementById('dashStock').innerHTML = ls.map(p=>{
+    const t=totalStock(p),max=30;
+    return`<div class="stock-row">
+      <span class="stock-name">${p.name}</span>
+      <div class="stock-left">
+        <div class="stock-bar"><div class="stock-fill ${t<5?'sf-red':'sf-ok'}" style="width:${Math.min(100,t/max*100)}%"></div></div>
+        <span class="stock-num ${t<5?'red':'ok'}">${t} шт</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function totalStock(p){return Object.values(p.stock||{}).reduce((s,v)=>s+(v||0),0);}
+function statusClass(s){return{new:'os-new',processing:'os-pending',done:'os-done',cancelled:'os-pending'}[s]||'os-pending';}
+function statusLabel(s){return{new:'Новый',processing:'Обработка',done:'Выполнен',cancelled:'Отменён'}[s]||s;}
+
+/* ════ PRODUCTS TABLE ════ */
+function renderProducts(){
+  const all = products.filter(p=>{
+    if(prodFilter.q && !p.name.toLowerCase().includes(prodFilter.q)) return false;
+    if(prodFilter.cat && p.cat!==prodFilter.cat) return false;
+    if(prodFilter.badge && p.badge!==prodFilter.badge) return false;
+    return true;
+  });
+  const perPage=8, total=all.length, pages=Math.ceil(total/perPage);
+  currentPage=Math.min(currentPage,pages||1);
+  const slice=all.slice((currentPage-1)*perPage, currentPage*perPage);
+  document.getElementById('pagInfo').textContent=`Показано ${slice.length} из ${total}`;
+  const pb=document.getElementById('pagBtns');
+  pb.innerHTML='';
+  for(let i=1;i<=pages;i++){const b=document.createElement('button');b.className='pag-btn'+(i===currentPage?' active':'');b.textContent=i;b.onclick=()=>{currentPage=i;renderProducts();};pb.appendChild(b);}
+  document.getElementById('productsBody').innerHTML=slice.map(p=>`
+    <tr>
+      <td><div class="td-img-ph" style="background:${p.bg}" onclick="openEditProduct(${p.id})">
+        ${p.photo?`<img src="${p.photo}" style="width:44px;height:56px;object-fit:cover">`:'<svg width="16" height="20" viewBox="0 0 60 80" fill="none" stroke="white" stroke-width="2" opacity="0.4"><path d="M30 4C30 4 42 10 44 18L56 20L50 28L52 74H8L10 28L4 20L16 18C18 10 30 4 30 4Z"/></svg>'}
+      </div></td>
+      <td><div class="td-name">${p.name}</div><div class="td-cat">${p.sku||''}</div></td>
+      <td><span style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--taupe)">${p.cat}</span></td>
+      <td><span class="td-price">${p.price.toLocaleString('ru')} ₽</span>${p.old?`<span class="td-old">${p.old.toLocaleString('ru')}</span>`:''}</td>
+      <td>${stockBadge(p)}</td>
+      <td>${p.badge==='new'?'<span class="badge-new">Новинка</span>':p.badge==='sale'?'<span class="badge-sale">Sale</span>':'—'}</td>
+      <td><div class="td-actions">
+        <button class="act-btn" onclick="openEditProduct(${p.id})">Изменить</button>
+        <button class="act-btn" onclick="openStockModal(${p.id})">Остатки</button>
+        <button class="act-btn danger" onclick="confirmDelete(${p.id})">Удалить</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function stockBadge(p){
+  const t=totalStock(p);
+  if(t===0) return '<span class="stock-badge"><span class="stock-dot" style="background:var(--amber-l)"></span>Нет</span>';
+  if(t<5)   return `<span class="stock-badge"><span class="stock-dot dot-red"></span>${t} шт</span>`;
+  return `<span class="stock-badge"><span class="stock-dot dot-green"></span>${t} шт</span>`;
+}
+
+function filterProducts(q){prodFilter.q=q.toLowerCase();currentPage=1;renderProducts();}
+function filterProductsCat(v){prodFilter.cat=v;currentPage=1;renderProducts();}
+function filterProductsBadge(v){prodFilter.badge=v;currentPage=1;renderProducts();}
+function sortTable(field){products.sort((a,b)=>field==='price'?a.price-b.price:a[field]>b[field]?1:-1);renderProducts();}
+
+/* ════ ADD / EDIT PRODUCT ════ */
+function openAddProduct(){
+  document.getElementById('prodModalTitle').textContent='Новый товар';
+  document.getElementById('editId').value='';
+  document.getElementById('fName').value='';
+  document.getElementById('fCat').value='Платья';
+  document.getElementById('fPrice').value='';
+  document.getElementById('fOld').value='';
+  document.getElementById('fMat').value='';
+  document.getElementById('fBadge').value='';
+  document.getElementById('fDesc').value='';
+  document.getElementById('fStock').value='10';
+  document.getElementById('fSku').value='SL-0'+(products.length+1);
+  document.querySelectorAll('.size-check').forEach(c=>c.checked=false);
+  document.getElementById('sS').checked=true;
+  document.getElementById('sM').checked=true;
+  document.getElementById('sL').checked=true;
+  editColors=[];
+  renderColorPicker();
+  document.getElementById('photoPreviews').innerHTML='';
+  openModal('prodModal','prodModalOv');
+}
+
+function openEditProduct(id){
+  const p=products.find(x=>x.id===id); if(!p) return;
+  document.getElementById('prodModalTitle').textContent='Редактировать товар';
+  document.getElementById('editId').value=id;
+  document.getElementById('fName').value=p.name;
+  document.getElementById('fCat').value=p.cat;
+  document.getElementById('fPrice').value=p.price;
+  document.getElementById('fOld').value=p.old||'';
+  document.getElementById('fMat').value=p.mat||'';
+  document.getElementById('fBadge').value=p.badge||'';
+  document.getElementById('fDesc').value=p.desc||'';
+  document.getElementById('fStock').value=totalStock(p);
+  document.getElementById('fSku').value=p.sku||'';
+  document.querySelectorAll('.size-check').forEach(c=>c.checked=p.sizes&&p.sizes.includes(c.value));
+  editColors=[...(p.colors||[])];
+  renderColorPicker();
+  document.getElementById('photoPreviews').innerHTML = p.photo?`<div class="photo-prev"><img src="${p.photo}"><button class="rm-photo" onclick="removePhoto()">×</button></div>`:'';
+  openModal('prodModal','prodModalOv');
+}
+
+function saveProduct(){
+  const name=document.getElementById('fName').value.trim();
+  const price=parseInt(document.getElementById('fPrice').value);
+  if(!name||!price){showToast('Заполните обязательные поля','error');return;}
+  const sizes=[...document.querySelectorAll('.size-check:checked')].map(c=>c.value);
+  const id=parseInt(document.getElementById('editId').value)||null;
+  const old=parseInt(document.getElementById('fOld').value)||null;
+  const stockVal=parseInt(document.getElementById('fStock').value)||0;
+  const stockObj={};
+  sizes.forEach((s,i)=>stockObj[s]=Math.floor(stockVal/sizes.length)+(i<stockVal%sizes.length?1:0));
+  const data={
+    name,price,old,
+    cat:document.getElementById('fCat').value,
+    mat:document.getElementById('fMat').value,
+    badge:document.getElementById('fBadge').value||null,
+    desc:document.getElementById('fDesc').value,
+    sizes:sizes.length?sizes:['S','M','L'],
+    colors:editColors.length?editColors:['#C4A882'],
+    bg:`linear-gradient(150deg,${editColors[0]||'#C4A882'},${editColors[1]||'#8B7060'})`,
+    stock:stockObj,
+    sku:document.getElementById('fSku').value,
+    photo:null
+  };
+  if(id){
+    const idx=products.findIndex(p=>p.id===id);
+    if(idx>=0){
+      const existing=products[idx];
+      data.photo=existing.photo;
+      data.stock=existing.stock;
+      products[idx]={...existing,...data,id};
+    }
+  } else {
+    data.id=Date.now();
+    products.push(data);
+  }
+  save(); renderProducts(); renderDashboard(); closeProdModal();
+  showToast(id?'Товар обновлён':'Товар добавлен','success');
+}
+
+function confirmDelete(id){
+  const p=products.find(x=>x.id===id);
+  document.getElementById('confirmText').textContent=`Удалить товар «${p?.name}»? Это действие нельзя отменить.`;
+  document.getElementById('confirmYes').onclick=()=>{products=products.filter(x=>x.id!==id);save();renderProducts();renderDashboard();closeConfirm();showToast('Товар удалён','success');};
+  openModal('confirmModal','confirmOv');
+}
+
+/* ════ PHOTOS ════ */
+function handlePhotos(input){
+  const files=Array.from(input.files);
+  const prev=document.getElementById('photoPreviews');
+  prev.innerHTML='';
+  files.forEach(file=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      const div=document.createElement('div');div.className='photo-prev';
+      div.innerHTML=`<img src="${e.target.result}"><button class="rm-photo" onclick="this.parentNode.remove()">×</button>`;
+      prev.appendChild(div);
+      // store first photo on product
+      const id=parseInt(document.getElementById('editId').value);
+      if(id && prev.querySelectorAll('.photo-prev').length===1){
+        const idx=products.findIndex(p=>p.id===id);
+        if(idx>=0)products[idx].photo=e.target.result;
+      }
+    };
+    r.readAsDataURL(file);
+  });
+}
+function removePhoto(){
+  document.getElementById('photoPreviews').innerHTML='';
+  const id=parseInt(document.getElementById('editId').value);
+  if(id){const idx=products.findIndex(p=>p.id===id);if(idx>=0)products[idx].photo=null;}
+}
+
+/* ════ COLOR PICKER ════ */
+function renderColorPicker(){
+  const cp=document.getElementById('colorPicker');
+  const addBtn=cp.querySelector('.add-color-btn');
+  cp.innerHTML='';
+  editColors.forEach((c,i)=>{
+    const sw=document.createElement('div');sw.className='color-swatch';sw.style.background=c;
+    const del=document.createElement('div');del.className='del';del.textContent='×';
+    del.onclick=()=>{editColors.splice(i,1);renderColorPicker();};
+    sw.appendChild(del);cp.appendChild(sw);
+  });
+  cp.appendChild(addBtn);
+}
+function addColor(){
+  const input=document.createElement('input');input.type='color';input.value='#C4A882';
+  input.onchange=()=>{editColors.push(input.value);renderColorPicker();};
+  input.click();
+}
+
+/* ════ STOCK MODAL ════ */
+function openStockModal(id){
+  editStockId=id;
+  const p=products.find(x=>x.id===id);
+  document.getElementById('stockModalTitle').textContent=`Остатки: ${p.name}`;
+  const body=document.getElementById('stockModalBody');
+  body.innerHTML=`
+    <p style="font-size:11px;color:var(--taupe);margin-bottom:16px;letter-spacing:.5px">Укажите количество по каждому размеру</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${(p.sizes||['S','M','L']).map(s=>`
+        <div class="f-group" style="flex-direction:row;align-items:center;justify-content:space-between">
+          <span style="font-size:12px;font-weight:500;min-width:40px">${s}</span>
+          <div style="display:flex;align-items:center;gap:10px;flex:1;justify-content:flex-end">
+            <input type="range" min="0" max="50" value="${p.stock?.[s]||0}"
+              oninput="document.getElementById('sv_${s}').value=this.value"
+              style="flex:1;accent-color:var(--burg)">
+            <input type="number" id="sv_${s}" value="${p.stock?.[s]||0}" min="0" max="999"
+              style="width:60px;border:1px solid var(--border);background:var(--cream);
+              padding:6px 10px;font-size:12px;font-family:'Montserrat',sans-serif;outline:none;text-align:center">
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="divider"></div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--mid)">
+      <span>Итого на складе:</span>
+      <strong style="color:var(--dark)">${totalStock(p)} шт</strong>
+    </div>`;
+  openModal('stockModal','stockModalOv');
+}
+function saveStock(){
+  const p=products.find(x=>x.id===editStockId);if(!p)return;
+  if(!p.stock)p.stock={};
+  (p.sizes||['S','M','L']).forEach(s=>{const el=document.getElementById('sv_'+s);if(el)p.stock[s]=parseInt(el.value)||0;});
+  save();renderProducts();renderInventory();renderDashboard();closeStockModal();
+  showToast('Остатки обновлены','success');
+}
+
+/* ════ INVENTORY ════ */
+function renderInventory(filter='',statusF=''){
+  const allSizes=['XS','S','M','L','XL','XXL'];
+  let list=[...products];
+  if(filter)list=list.filter(p=>p.name.toLowerCase().includes(filter));
+  if(statusF==='low')list=list.filter(p=>totalStock(p)<5&&totalStock(p)>0);
+  if(statusF==='out')list=list.filter(p=>totalStock(p)===0);
+  if(statusF==='ok')list=list.filter(p=>totalStock(p)>=5);
+  document.getElementById('inventoryBody').innerHTML=list.map(p=>`
+    <tr>
+      <td><div class="td-img-ph" style="background:${p.bg};width:36px;height:46px">
+        ${p.photo?`<img src="${p.photo}" style="width:36px;height:46px;object-fit:cover">`:
+        '<svg width="12" height="16" viewBox="0 0 60 80" fill="none" stroke="white" stroke-width="2" opacity="0.5"><path d="M30 4C30 4 42 10 44 18L56 20L50 28L52 74H8L10 28L4 20L16 18C18 10 30 4 30 4Z"/></svg>'}
+      </div></td>
+      <td class="td-name">${p.name}</td>
+      <td style="font-size:10px;color:var(--taupe);letter-spacing:1px;text-transform:uppercase">${p.cat}</td>
+      ${allSizes.map(s=>p.sizes?.includes(s)?`<td style="text-align:center;font-size:12px;font-weight:500;color:${(p.stock?.[s]||0)<3?'var(--amber)':'var(--dark)'}">${p.stock?.[s]||0}</td>`:`<td style="text-align:center;color:var(--border)">—</td>`).join('')}
+      <td>${stockBadge(p)}</td>
+      <td><span class="stock-badge">${
+        totalStock(p)===0?'<span class="stock-dot" style="background:var(--amber-l)"></span>Нет в наличии':
+        totalStock(p)<5?'<span class="stock-dot dot-red"></span>Мало':'<span class="stock-dot dot-green"></span>В норме'
+      }</span></td>
+      <td><button class="act-btn" onclick="openStockModal(${p.id})">Изменить</button></td>
+    </tr>`).join('');
+}
+function filterInventory(q){renderInventory(q.toLowerCase(),document.querySelector('.tfilter')?.value);}
+function filterInventoryStatus(v){renderInventory('',v);}
+
+/* ════ CATEGORIES ════ */
+function renderCategories(){
+  const grid=document.getElementById('catGrid');
+  grid.innerHTML=categories.map(c=>{
+    const count=products.filter(p=>p.cat===c).length;
+    return`<div class="cat-admin-card">
+      <div><div class="can-name">${c}</div><div class="can-count">${count} товаров</div></div>
+      <div class="can-acts">
+        <button class="act-btn" onclick="editCategory('${c}')">Ред.</button>
+        <button class="act-btn danger" onclick="deleteCat('${c}')">×</button>
+      </div>
+    </div>`;}).join('');
+  document.getElementById('catTableBody').innerHTML=categories.map(c=>{
+    const items=products.filter(p=>p.cat===c);
+    const avg=items.length?Math.round(items.reduce((s,p)=>s+p.price,0)/items.length):0;
+    const stock=items.reduce((s,p)=>s+totalStock(p),0);
+    return`<tr>
+      <td class="td-name">${c}</td>
+      <td>${items.length}</td>
+      <td>${avg.toLocaleString('ru')} ₽</td>
+      <td>${stockBadge({stock:{'':stock},sizes:['']})}</td>
+      <td><div class="td-actions">
+        <button class="act-btn" onclick="editCategory('${c}')">Изменить</button>
+        <button class="act-btn danger" onclick="deleteCat('${c}')">Удалить</button>
+      </div></td>
+    </tr>`;}).join('');
+}
+
+function openAddCategory(){document.getElementById('catName').value='';document.getElementById('catDesc').value='';openModal('catModal','catModalOv');}
+function editCategory(name){document.getElementById('catName').value=name;document.getElementById('catDesc').value='';document.getElementById('catModal')._editing=name;openModal('catModal','catModalOv');}
+function saveCategory(){
+  const name=document.getElementById('catName').value.trim();if(!name)return;
+  const editing=document.getElementById('catModal')._editing;
+  if(editing){const i=categories.indexOf(editing);if(i>=0){categories[i]=name;products.forEach(p=>{if(p.cat===editing)p.cat=name;});}}
+  else if(!categories.includes(name))categories.push(name);
+  document.getElementById('catModal')._editing=null;
+  save();renderCategories();closeCatModal();showToast('Категория сохранена','success');
+}
+function deleteCat(name){
+  const count=products.filter(p=>p.cat===name).length;
+  document.getElementById('confirmText').textContent=`Удалить категорию «${name}»?${count?` В ней ${count} товаров — они останутся без категории.`:''}`;
+  document.getElementById('confirmYes').onclick=()=>{categories=categories.filter(c=>c!==name);save();renderCategories();closeConfirm();showToast('Категория удалена','success');};
+  openModal('confirmModal','confirmOv');
+}
+
+/* ════ ORDERS ════ */
+function renderOrders(){
+  const list=orderFilter==='all'?ORDERS:ORDERS.filter(o=>o.status===orderFilter);
+  document.getElementById('ordersBody').innerHTML=list.map(o=>`
+    <tr>
+      <td class="td-name">${o.id}</td>
+      <td>${o.name}</td>
+      <td style="font-size:11px;color:var(--mid);max-width:200px">${o.items}</td>
+      <td class="td-price">${o.amount.toLocaleString('ru')} ₽</td>
+      <td style="font-size:11px;color:var(--taupe)">${o.date}</td>
+      <td><span class="ord-status ${statusClass(o.status)}">${statusLabel(o.status)}</span></td>
+      <td><div class="td-actions">
+        <button class="act-btn">Детали</button>
+        ${o.status==='new'?'<button class="act-btn">→ Обработка</button>':''}
+      </div></td>
+    </tr>`).join('');
+}
+function filterOrders(f,el){orderFilter=f;document.querySelectorAll('.ost').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderOrders();}
+
+/* ════ MODALS ════ */
+function openModal(id,ovId){document.getElementById(id).classList.add('on');document.getElementById(ovId).classList.add('on');document.body.style.overflow='hidden';}
+function closeModal(id,ovId){document.getElementById(id).classList.remove('on');document.getElementById(ovId).classList.remove('on');document.body.style.overflow='';}
+function closeProdModal(){closeModal('prodModal','prodModalOv');}
+function closeStockModal(){closeModal('stockModal','stockModalOv');}
+function closeConfirm(){closeModal('confirmModal','confirmOv');}
+function closeCatModal(){closeModal('catModal','catModalOv');}
+
+/* ════ TOAST ════ */
+let toastT;
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.className='toast'+(type?' '+type:'');
+  document.getElementById('toastMsg').textContent=msg;
+  t.classList.add('on');
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>t.classList.remove('on'),2800);
+}
+
+/* ════ INIT ════ */
+function initAll(){
+  renderDashboard();
+  renderProducts();
+}
+
+// ESC
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeProdModal();closeStockModal();closeConfirm();closeCatModal();}});
+</script>
+</body>
+</html>
